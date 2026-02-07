@@ -1,0 +1,17 @@
+{
+  "name": "zhentan",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "transfer-usdc": "node scripts/transfer-usdc.js",
+    "transfer-usdc:multisig": "node scripts/transfer-usdc-multisig.js",
+    "propose": "node scripts/propose-tx.js",
+    "agent-sign": "node scripts/agent-sign.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "permissionless": "^0.2.14",
+    "viem": "^2.21.0"
+  }
+}
