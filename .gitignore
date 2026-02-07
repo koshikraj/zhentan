@@ -1,0 +1,20 @@
+node_modules/
+.env
+
+# Client (Next.js)
+client/node_modules/
+client/.next/
+client/out/
+client/.env.local
+client/.env*.local
+client/.turbo
+client/.vercel
+client/*.tsbuildinfo
+client/.cache
+
+# Server (Express)
+server/node_modules/
+server/dist/
+server/data/
+server/logs/
+server/.env
