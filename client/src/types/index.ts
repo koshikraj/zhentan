@@ -1,0 +1,137 @@
+export type TransactionDirection = "send" | "receive";
+
+export interface PendingTransaction {
+  id: string;
+  to: string;
+  amount: string;
+  token: string;
+  /** If set, used in activity to show send vs receive. Defaults to "send" for proposed outbound transfers. */
+  direction?: TransactionDirection;
+  usdcAddress: string;
+  proposedBy: string;
+  signatures: string[];
+  ownerAddresses: string[];
+  threshold: number;
+  safeAddress: string;
+  userOp: Record<string, unknown>;
+  partialSignatures: string;
+  proposedAt: string;
+  // Execution
+  executedAt?: string;
+  executedBy?: string;
+  txHash?: string;
+  success?: boolean;
+  // Review
+  inReview?: boolean;
+  reviewReason?: string;
+  reviewedAt?: string;
+  // Rejection
+  rejected?: boolean;
+  rejectedAt?: string;
+  rejectReason?: string;
+}
+
+export type TransactionStatus =
+  | "pending"
+  | "in_review"
+  | "executed"
+  | "rejected";
+
+export interface TransactionWithStatus extends PendingTransaction {
+  status: TransactionStatus;
+}
+
+export interface QueueFile {
+  pending: PendingTransaction[];
+}
+
+export interface StateFile {
+  screeningMode: boolean;
+  lastCheck: string | null;
+  decisions: unknown[];
+}
+
+export interface RecipientPattern {
+  label: string | null;
+  totalTxCount: number;
+  totalVolume: string;
+  avgAmount: string;
+  maxAmount: string;
+  lastSeen: string;
+  typicalHours: (number | null)[];
+  category: string;
+}
+
+export interface PatternsFile {
+  recipients: Record<string, RecipientPattern>;
+  dailyStats: Record<string, { txCount: number; totalVolume: string }>;
+  globalLimits: {
+    maxSingleTx: string;
+    maxDailyVolume: string;
+    allowedHoursUTC: number[];
+  };
+}
+
+export interface StatusResponse {
+  screeningMode: boolean;
+  lastCheck: string | null;
+  totalDecisions: number;
+  patterns: PatternsFile;
+}
+
+export interface BalanceResponse {
+  balance: string;
+  formatted: string;
+  safeAddress: string;
+}
+
+export interface ProposeParams {
+  recipient: string;
+  amount: string;
+  ownerAddress: string;
+  getOwnerAccount: () => Promise<import("viem").LocalAccount | null>;
+}
+
+// Invoice types
+
+export interface InvoiceService {
+  description: string;
+  qty: number;
+  rate: string;
+  total: string;
+}
+
+export interface InvoiceParty {
+  name: string;
+  email?: string;
+  address?: string;
+}
+
+export type InvoiceStatus = "queued" | "approved" | "executed" | "rejected";
+
+export interface QueuedInvoice {
+  id: string;
+  to: string;
+  amount: string;
+  token: string;
+  invoiceNumber?: string;
+  issueDate?: string;
+  dueDate?: string;
+  billedFrom?: InvoiceParty;
+  billedTo?: InvoiceParty;
+  services?: InvoiceService[];
+  riskScore?: number;
+  riskNotes?: string;
+  sourceChannel: string;
+  queuedAt: string;
+  status: InvoiceStatus;
+  txId?: string;
+  executedAt?: string;
+  txHash?: string;
+  rejectedAt?: string;
+  rejectReason?: string;
+}
+
+export interface InvoiceQueueFile {
+  invoices: QueuedInvoice[];
+}
