@@ -1,0 +1,79 @@
+{
+  "recipients": {
+    "0x67d29520c6f9579fe4b32dcba346620846ef98d2": {
+      "label": "contractor-alice",
+      "totalTxCount": 71,
+      "totalVolume": "21556.30",
+      "avgAmount": "303.61",
+      "maxAmount": "4800.00",
+      "typicalHours": [
+        9,
+        10,
+        11,
+        14,
+        15,
+        16,
+        null,
+        null,
+        12,
+        13,
+        17,
+        7,
+        6
+      ],
+      "category": "payroll",
+      "lastSeen": "2026-02-07T12:49:14.799Z"
+    },
+    "0x958543756a4c7ac6fb361f0efbfecd98e4d297db": {
+      "label": null,
+      "totalTxCount": 8,
+      "totalVolume": "55.32",
+      "avgAmount": "6.92",
+      "maxAmount": "50.00",
+      "lastSeen": "2026-02-06T06:21:09.398Z",
+      "typicalHours": [
+        12,
+        17,
+        18,
+        20,
+        6
+      ],
+      "category": "unknown"
+    }
+  },
+  "dailyStats": {
+    "2026-02-05": {
+      "txCount": 26,
+      "totalVolume": "7405.62"
+    },
+    "2026-02-06": {
+      "txCount": 3,
+      "totalVolume": "3.00"
+    },
+    "2026-02-07": {
+      "txCount": 3,
+      "totalVolume": "3.00"
+    }
+  },
+  "globalLimits": {
+    "maxSingleTx": "5000.00",
+    "maxDailyVolume": "20000.00",
+    "allowedHoursUTC": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "zhentan",
+  "version": "0.1.0",
+  "description": "Treasury transaction monitor and auto-signer for Safe multisig",
+  "type": "module",
+  "scripts": {
+    "check-pending": "node check-pending.js",
+    "analyze-risk": "node analyze-risk.js",
+    "sign-and-execute": "node sign-and-execute.js",
+    "record-pattern": "node record-pattern.js",
+    "get-status": "node get-status.js",
+    "toggle-screening": "node toggle-screening.js"
+  },
+  "dependencies": {}
+}
