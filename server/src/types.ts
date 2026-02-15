@@ -25,6 +25,9 @@ export interface PendingTransaction {
   rejected?: boolean;
   rejectedAt?: string;
   rejectReason?: string;
+  riskScore?: number;
+  riskVerdict?: "APPROVE" | "REVIEW" | "BLOCK";
+  riskReasons?: string[];
 }
 
 export type TransactionStatus =
