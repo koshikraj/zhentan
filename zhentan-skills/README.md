@@ -21,8 +21,8 @@ OpenClaw skill pack for **Zhentan** — a treasury monitor agent that watches pe
 From the Zhentan repo root:
 
 ```bash
-mkdir -p ~/.openclaw/skills
-ln -sf "$(pwd)/zhentan-skills" ~/.openclaw/skills/zhentan
+mkdir -p ~/.openclaw/workspace/skills
+ln -sf "$(pwd)/zhentan-skills" ~/.openclaw/workspace/skills/zhentan
 ```
 
 ### 2. Register the cron job
