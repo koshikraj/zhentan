@@ -12,19 +12,42 @@ import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock } from "lu
 import { truncateAddress, formatDate, statusLabel } from "@/lib/format";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 import { getBackendApiUrl } from "@/lib/api";
-import type { TransactionWithStatus } from "@/types";
+import type { TransactionWithStatus, TokenPosition } from "@/types";
+
+function TokenOption({ token, selected }: { token: TokenPosition; selected: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      {token.iconUrl ? (
+        <span className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+          <Image src={token.iconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
+        </span>
+      ) : (
+        <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-claw">
+          {token.symbol.slice(0, 2)}
+        </span>
+      )}
+      <div className="flex-1 min-w-0 text-left">
+        <p className="text-sm font-semibold text-white">{token.symbol}</p>
+        <p className="text-xs text-slate-400 truncate">
+          {token.balance} {token.symbol}
+          {token.usdValue != null && ` · $${token.usdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        </p>
+      </div>
+      {selected && <CheckCircle2 className="h-4 w-4 text-claw flex-shrink-0" />}
+    </div>
+  );
+}
 
 interface SendPanelProps {
   onSuccess: () => void;
-  /** Called when user closes the dialog (e.g. during sending phase) */
   onClose?: () => void;
-  /** Called after propose so activities list can refresh and show the pending tx */
   onRefreshActivities?: () => void;
-  balance?: string | null;
+  /** BNB chain token positions (from portfolio API) */
+  tokens: TokenPosition[];
   screeningMode?: boolean;
 }
 
-export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, screeningMode = true }: SendPanelProps) {
+export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, screeningMode = true }: SendPanelProps) {
   const { user, wallet, getOwnerAccount } = useAuth();
   const [recipient, setRecipient] = useState("");
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
@@ -33,7 +56,6 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** 'form' | 'proposing' | 'proposed' (screening on) | 'sending' | 'success' (screening off) */
   const [sendPhase, setSendPhase] = useState<"form" | "proposing" | "proposed" | "sending" | "success">("form");
   const [proposedTx, setProposedTx] = useState<TransactionWithStatus | null>(null);
   const [executedResult, setExecutedResult] = useState<{
@@ -43,8 +65,18 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
     txHash: string;
     executedAt: string;
   } | null>(null);
+  const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
+  const ZERO = "0x0000000000000000000000000000000000000000";
+  const sendableTokens = tokens.filter((t) => t.address && t.address.toLowerCase() !== ZERO);
+  const [selectedToken, setSelectedToken] = useState<TokenPosition | null>(() => sendableTokens[0] ?? null);
 
-  const balanceNum = balance != null ? parseFloat(balance) : 0;
+  useEffect(() => {
+    if (sendableTokens.length > 0 && !selectedToken) setSelectedToken(sendableTokens[0]);
+    else if (sendableTokens.length > 0 && selectedToken && !sendableTokens.some((t) => t.id === selectedToken.id)) setSelectedToken(sendableTokens[0]);
+  }, [tokens]);
+
+  const balanceRaw = selectedToken?.balance ?? "0";
+  const balanceNum = parseFloat(balanceRaw) || 0;
   const amountNum = parseFloat(amount) || 0;
   const insufficientFunds = amountNum > 0 && amountNum > balanceNum;
 
@@ -124,6 +156,9 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
         amount,
         ownerAddress: wallet.address,
         getOwnerAccount,
+        tokenAddress: selectedToken?.address ?? undefined,
+        tokenDecimals: selectedToken?.decimals,
+        tokenSymbol: selectedToken?.symbol,
       });
 
       onRefreshActivities?.();
@@ -182,7 +217,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
-          <span className="text-lg font-semibold text-white">{amount} USDC</span>
+          <span className="text-lg font-semibold text-white">{amount} {selectedToken?.symbol ?? "USDC"}</span>
         </div>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between gap-4">
@@ -281,7 +316,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
           </div>
           <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
           <span className="text-lg font-semibold text-white">
-            {amount} USDC
+            {amount} {selectedToken?.symbol ?? "USDC"}
           </span>
         </div>
         <dl className="space-y-3 text-sm">
@@ -391,16 +426,64 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
         )}
       </div>
 
-      {/* USDC balance row */}
-      <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-        <UsdcIcon size={32} className="flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-base font-semibold text-white">USDC</p>
-          <p className="text-sm text-slate-400">
-            Balance: {balance ?? "—"} {balance != null && `($${balance})`}
-          </p>
-        </div>
-        <ChevronDown className="h-5 w-5 text-slate-500 flex-shrink-0" aria-hidden />
+      {/* Token selector */}
+      <div>
+        <label className="block text-sm font-medium text-slate-400 mb-2">
+          Token
+        </label>
+        <button
+          type="button"
+          onClick={() => setTokenSelectorOpen((o) => !o)}
+          className="w-full flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4 text-left hover:bg-white/[0.08] transition-colors min-h-[2.75rem] touch-manipulation"
+        >
+          {selectedToken ? (
+            <>
+              {selectedToken.iconUrl ? (
+                <span className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+                  <Image src={selectedToken.iconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
+                </span>
+              ) : (
+                <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-claw">
+                  {selectedToken.symbol.slice(0, 2)}
+                </span>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-semibold text-white">{selectedToken.symbol}</p>
+                <p className="text-sm text-slate-400">
+                  Balance: {selectedToken.balance} {selectedToken.symbol}
+                  {selectedToken.usdValue != null && ` · $${selectedToken.usdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </p>
+              </div>
+              <ChevronDown className={`h-5 w-5 text-slate-500 flex-shrink-0 transition-transform ${tokenSelectorOpen ? "rotate-180" : ""}`} aria-hidden />
+            </>
+          ) : (
+            <>
+              <UsdcIcon size={32} className="flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-semibold text-white">Select token</p>
+                <p className="text-sm text-slate-400">{sendableTokens.length === 0 ? "No sendable tokens" : "No tokens in portfolio"}</p>
+              </div>
+              <ChevronDown className="h-5 w-5 text-slate-500 flex-shrink-0" aria-hidden />
+            </>
+          )}
+        </button>
+        {tokenSelectorOpen && sendableTokens.length > 0 && (
+          <div className="mt-2 rounded-2xl bg-white/[0.06] overflow-hidden divide-y divide-white/[0.06] max-h-48 overflow-y-auto">
+            {sendableTokens.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  setSelectedToken(t);
+                  setTokenSelectorOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.08] transition-colors"
+              >
+                <TokenOption token={t} selected={selectedToken?.id === t.id} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* To - recipient with ENS/address */}
@@ -433,7 +516,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, balance, sc
       <Button
         type="submit"
         loading={loading}
-        disabled={!canSubmit || !amount || amountNum <= 0 || insufficientFunds}
+        disabled={!canSubmit || !amount || amountNum <= 0 || insufficientFunds || !selectedToken}
         className="w-full py-3.5"
       >
         {submitLabel}

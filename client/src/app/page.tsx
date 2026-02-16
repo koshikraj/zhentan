@@ -6,33 +6,39 @@ import { BalanceCard } from "@/components/BalanceCard";
 import { SendPanel } from "@/components/SendPanel";
 import { ReceivePanel } from "@/components/ReceivePanel";
 import { ActivityList } from "@/components/ActivityList";
+import { TokenList } from "@/components/TokenList";
 import { Dialog } from "@/components/ui/Dialog";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ThemeLoader } from "@/components/ThemeLoader";
 import { useAuth } from "@/app/context/AuthContext";
 import { useSafeAddress } from "@/lib/useSafeAddress";
 import { getBackendApiUrl } from "@/lib/api";
-import type { TransactionWithStatus, StatusResponse } from "@/types";
+import type { TransactionWithStatus, StatusResponse, TokenPosition, PortfolioResponse } from "@/types";
 
 function Dashboard() {
   const { user, wallet } = useAuth();
   const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address);
 
-  const [balance, setBalance] = useState<string | null>(null);
+  const [portfolioTotalUsd, setPortfolioTotalUsd] = useState<number | null>(null);
+  const [tokens, setTokens] = useState<TokenPosition[]>([]);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [transactions, setTransactions] = useState<TransactionWithStatus[]>([]);
   const [txLoading, setTxLoading] = useState(true);
   const [screeningMode, setScreeningMode] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
+  const [listTab, setListTab] = useState<"tokens" | "activity">("activity");
 
-  const fetchBalance = useCallback(async () => {
+  const fetchPortfolio = useCallback(async () => {
     if (!safeAddress) return;
     try {
-      const res = await fetch(`/api/balance?safeAddress=${safeAddress}`);
+      const res = await fetch(
+        `${getBackendApiUrl("portfolio")}?safeAddress=${encodeURIComponent(safeAddress)}`
+      );
       if (res.ok) {
-        const data = await res.json();
-        setBalance(data.formatted);
+        const data: PortfolioResponse = await res.json();
+        setPortfolioTotalUsd(data.totalUsd);
+        setTokens(data.tokens ?? []);
       }
     } catch {
       // silent
@@ -72,23 +78,23 @@ function Dashboard() {
 
   useEffect(() => {
     if (!safeAddress) return;
-    fetchBalance();
+    fetchPortfolio();
     fetchTransactions();
     fetchStatus();
-  }, [safeAddress, fetchBalance, fetchTransactions, fetchStatus]);
+  }, [safeAddress, fetchPortfolio, fetchTransactions, fetchStatus]);
 
   const handleSendSuccess = () => {
     setSendOpen(false);
     fetchTransactions();
-    fetchBalance();
+    fetchPortfolio();
   };
 
   const handleRefresh = useCallback(() => {
     setBalanceLoading(true);
     setTxLoading(true);
-    fetchBalance();
+    fetchPortfolio();
     fetchTransactions();
-  }, [fetchBalance, fetchTransactions]);
+  }, [fetchPortfolio, fetchTransactions]);
 
   if (safeLoading || !safeAddress) {
     return (
@@ -107,22 +113,22 @@ function Dashboard() {
       <main className="flex-1 flex flex-col min-h-0 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
         <div className="flex-shrink-0 mb-4 sm:mb-6">
           <BalanceCard
-          balance={balance}
-          safeAddress={safeAddress}
-          loading={balanceLoading}
-          email={user?.email}
-          onRefresh={handleRefresh}
-          onToggleSend={() => {
-            setSendOpen(!sendOpen);
-            setReceiveOpen(false);
-          }}
-          onToggleReceive={() => {
-            setReceiveOpen(!receiveOpen);
-            setSendOpen(false);
-          }}
-          sendOpen={sendOpen}
-          receiveOpen={receiveOpen}
-        />
+            portfolioTotalUsd={portfolioTotalUsd}
+            safeAddress={safeAddress}
+            loading={balanceLoading}
+            email={user?.email}
+            onRefresh={handleRefresh}
+            onToggleSend={() => {
+              setSendOpen(!sendOpen);
+              setReceiveOpen(false);
+            }}
+            onToggleReceive={() => {
+              setReceiveOpen(!receiveOpen);
+              setSendOpen(false);
+            }}
+            sendOpen={sendOpen}
+            receiveOpen={receiveOpen}
+          />
         </div>
 
         <Dialog
@@ -135,7 +141,7 @@ function Dashboard() {
             onSuccess={handleSendSuccess}
             onClose={() => setSendOpen(false)}
             onRefreshActivities={fetchTransactions}
-            balance={balance}
+            tokens={tokens}
             screeningMode={screeningMode}
           />
         </Dialog>
@@ -144,8 +150,38 @@ function Dashboard() {
           <ReceivePanel safeAddress={safeAddress} />
         </Dialog>
 
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <ActivityList transactions={transactions} loading={txLoading} />
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="flex-shrink-0 flex rounded-t-2xl overflow-hidden bg-white/[0.04] p-1 gap-0.5 mb-0">
+            <button
+              type="button"
+              onClick={() => setListTab("tokens")}
+              className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-xl transition-colors ${
+                listTab === "tokens"
+                  ? "bg-white/[0.12] text-white shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Tokens
+            </button>
+            <button
+              type="button"
+              onClick={() => setListTab("activity")}
+              className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-xl transition-colors ${
+                listTab === "activity"
+                  ? "bg-white/[0.12] text-white shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              Activity
+            </button>
+          </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {listTab === "tokens" ? (
+              <TokenList tokens={tokens} loading={balanceLoading} />
+            ) : (
+              <ActivityList transactions={transactions} loading={txLoading} />
+            )}
+          </div>
         </div>
       </main>
     </div>

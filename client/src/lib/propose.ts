@@ -34,10 +34,17 @@ export async function proposeTransaction({
   amount,
   ownerAddress,
   getOwnerAccount,
+  tokenAddress: tokenAddressParam,
+  tokenDecimals,
+  tokenSymbol,
 }: ProposeParams) {
   const pimlicoApiKey = requireEnv(process.env.NEXT_PUBLIC_PIMLICO_API_KEY, "NEXT_PUBLIC_PIMLICO_API_KEY");
   const ownerAddr2 = requireEnv(process.env.NEXT_PUBLIC_AGENT_ADDRESS, "NEXT_PUBLIC_AGENT_ADDRESS");
-  const usdcAddress = requireEnv(process.env.NEXT_PUBLIC_USDC_CONTRACT, "NEXT_PUBLIC_USDC_CONTRACT");
+  const defaultUsdc = process.env.NEXT_PUBLIC_USDC_CONTRACT;
+  const tokenAddress = tokenAddressParam ?? defaultUsdc;
+  if (!tokenAddress) throw new Error("Token address required (NEXT_PUBLIC_USDC_CONTRACT or tokenAddress)");
+  const decimals = tokenDecimals ?? USDC_DECIMALS;
+  const symbol = tokenSymbol ?? "USDC";
 
   const ownerAccount = await getOwnerAccount();
   if (!ownerAccount) throw new Error("Wallet not ready for signing");
@@ -78,17 +85,7 @@ export async function proposeTransaction({
   });
 
 
-  const amountWei = parseUnits(amount.toString(), USDC_DECIMALS);
-  console.log("Amount:", amount);
-  console.log("USDC Address:", usdcAddress);
-  console.log("Recipient:", recipient);
-  console.log("Owner Address:", ownerAccount.address);
-  console.log("Owner Address 2:", ownerAddr2);
-  console.log("Safe Account:", safeAccount.address);
-  console.log("Smart Account Client:", smartAccountClient);
-  console.log("Paymaster Client:", paymasterClient);
-  console.log("Public Client:", publicClient);
-  console.log("Amount in wei:", amountWei);
+  const amountWei = parseUnits(amount.toString(), decimals);
   const data = encodeFunctionData({
     abi: ERC20_TRANSFER_ABI,
     functionName: "transfer",
@@ -97,7 +94,7 @@ export async function proposeTransaction({
 
   // 1. Prepare unsigned user operation
   const unsignedUserOp = await smartAccountClient.prepareUserOperation({
-    calls: [{ to: usdcAddress as `0x${string}`, value: 0n, data }],
+    calls: [{ to: tokenAddress as `0x${string}`, value: 0n, data }],
   });
 
   // 2. Owner signs their part
@@ -116,8 +113,8 @@ export async function proposeTransaction({
     id: txId,
     to: recipient,
     amount,
-    token: "USDC",
-    usdcAddress,
+    token: symbol,
+    usdcAddress: tokenAddress,
     proposedBy: ownerAccount.address,
     signatures: [ownerAccount.address],
     ownerAddresses: [ownerAddress, ownerAddr2],

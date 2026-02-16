@@ -8,7 +8,7 @@ const BACKEND_BASE = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "").replace(
   ""
 );
 
-export type BackendApiPath = "transactions" | "queue" | "execute" | "invoices";
+export type BackendApiPath = "transactions" | "queue" | "execute" | "invoices" | "portfolio";
 
 export function getBackendApiUrl(path: BackendApiPath): string {
   return BACKEND_BASE ? `${BACKEND_BASE}/${path}` : `/api/${path}`;

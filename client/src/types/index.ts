@@ -85,11 +85,37 @@ export interface BalanceResponse {
   safeAddress: string;
 }
 
+export interface TokenPosition {
+  id: string;
+  tokenId?: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  iconUrl?: string;
+  usdValue: number | null;
+  balance: string;
+  price: number;
+  address: string | null;
+  chain: { id: string; chainId: number; name: string };
+  verified: boolean;
+}
+
+export interface PortfolioResponse {
+  tokens: TokenPosition[];
+  totalUsd: number;
+}
+
 export interface ProposeParams {
   recipient: string;
   amount: string;
   ownerAddress: string;
   getOwnerAccount: () => Promise<import("viem").LocalAccount | null>;
+  /** ERC20 token contract address (default: USDC from env) */
+  tokenAddress?: string;
+  /** Token decimals (default: USDC decimals) */
+  tokenDecimals?: number;
+  /** Token symbol for display (e.g. "USDC") */
+  tokenSymbol?: string;
 }
 
 // Invoice types

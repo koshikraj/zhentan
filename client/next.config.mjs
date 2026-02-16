@@ -6,6 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@privy-io/react-auth"],
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.zerion.io", pathname: "/**" },
+    ],
+  },
   webpack: (config) => {
     config.resolve.alias = {
       "lucide-react": path.resolve(__dirname, "lucide-react-shim.mjs"),

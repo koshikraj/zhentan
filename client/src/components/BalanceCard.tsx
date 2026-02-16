@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { Skeleton } from "./ui/Skeleton";
 import { truncateAddress } from "@/lib/format";
 import { ArrowUpRight, ArrowDownLeft, Copy, Check, RefreshCw } from "lucide-react";
-import { UsdcIcon } from "./icons/UsdcIcon";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 40, scale: 0.98 },
@@ -22,7 +21,8 @@ const cardVariants = {
 };
 
 interface BalanceCardProps {
-  balance: string | null;
+  /** Total portfolio value in USD (from Zerion) */
+  portfolioTotalUsd: number | null;
   safeAddress: string;
   loading: boolean;
   email?: string | null;
@@ -34,7 +34,7 @@ interface BalanceCardProps {
 }
 
 export function BalanceCard({
-  balance,
+  portfolioTotalUsd,
   safeAddress,
   loading,
   email,
@@ -45,6 +45,7 @@ export function BalanceCard({
   receiveOpen,
 }: BalanceCardProps) {
   const [copied, setCopied] = useState(false);
+  const displayTotal = portfolioTotalUsd != null ? portfolioTotalUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
 
   const copyAddress = async () => {
     await navigator.clipboard.writeText(safeAddress);
@@ -103,12 +104,11 @@ export function BalanceCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          ${balance ?? "—"}
+          ${displayTotal ?? "—"}
         </motion.div>
       )}
       <div className="flex items-center gap-1.5 mt-0.5">
-        <UsdcIcon size={20} className="flex-shrink-0" />
-        <span className="text-xs font-medium text-claw/80">USDC</span>
+        <span className="text-xs font-medium text-claw/80">Portfolio (BNB Chain)</span>
       </div>
 
       {/* Card number style address */}
