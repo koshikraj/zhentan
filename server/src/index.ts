@@ -5,6 +5,7 @@ import { createTransactionsRouter } from "./routes/transactions.js";
 import { createQueueRouter } from "./routes/queue.js";
 import { createExecuteRouter } from "./routes/execute.js";
 import { createInvoicesRouter } from "./routes/invoices.js";
+import { createPortfolioRouter } from "./routes/portfolio.js";
 import { editNotification } from "./notify.js";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/transactions", createTransactionsRouter(getQueuePath));
 app.use("/queue", createQueueRouter(getQueuePath));
 app.use("/execute", createExecuteRouter(getQueuePath));
 app.use("/invoices", createInvoicesRouter(getInvoiceQueuePath));
+app.use("/portfolio", createPortfolioRouter());
 
 app.post("/notify-resolve", (req, res) => {
   const { txId, action, txHash } = req.body ?? {};
