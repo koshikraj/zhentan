@@ -150,15 +150,15 @@ function Dashboard() {
           <ReceivePanel safeAddress={safeAddress} />
         </Dialog>
 
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div className="flex-shrink-0 flex rounded-t-2xl overflow-hidden bg-white/[0.04] p-1 gap-0.5 mb-0">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden glass-card rounded-2xl">
+          <div className="flex-shrink-0 flex border-b border-white/[0.08] px-5 sm:px-8 pt-5 pb-0 gap-8">
             <button
               type="button"
               onClick={() => setListTab("tokens")}
-              className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-xl transition-colors ${
+              className={`py-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 listTab === "tokens"
-                  ? "bg-white/[0.12] text-white shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "text-claw border-claw"
+                  : "text-slate-400 border-transparent hover:text-slate-300"
               }`}
             >
               Tokens
@@ -166,10 +166,10 @@ function Dashboard() {
             <button
               type="button"
               onClick={() => setListTab("activity")}
-              className={`flex-1 py-2.5 px-4 text-sm font-semibold rounded-xl transition-colors ${
+              className={`py-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 listTab === "activity"
-                  ? "bg-white/[0.12] text-white shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "text-claw border-claw"
+                  : "text-slate-400 border-transparent hover:text-slate-300"
               }`}
             >
               Activity
@@ -177,9 +177,9 @@ function Dashboard() {
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {listTab === "tokens" ? (
-              <TokenList tokens={tokens} loading={balanceLoading} />
+              <TokenList tokens={tokens} loading={balanceLoading} embedded />
             ) : (
-              <ActivityList transactions={transactions} loading={txLoading} />
+              <ActivityList transactions={transactions} loading={txLoading} embedded />
             )}
           </div>
         </div>

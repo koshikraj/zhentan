@@ -33,11 +33,13 @@ const headerVariants = {
 interface TokenListProps {
   tokens: TokenPosition[];
   loading: boolean;
+  /** When true, render without Card wrapper (for use inside tabbed card) */
+  embedded?: boolean;
 }
 
-export function TokenList({ tokens, loading }: TokenListProps) {
-  return (
-    <Card>
+export function TokenList({ tokens, loading, embedded }: TokenListProps) {
+  const content = (
+    <>
       <motion.div
         className="flex items-center gap-2 mb-4"
         initial="hidden"
@@ -91,6 +93,7 @@ export function TokenList({ tokens, loading }: TokenListProps) {
           ))}
         </motion.div>
       )}
-    </Card>
+    </>
   );
+  return embedded ? <div className="p-4 sm:p-6">{content}</div> : <Card>{content}</Card>;
 }

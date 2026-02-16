@@ -184,7 +184,7 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
             whileTap={{ scale: 0.98 }}
           >
             <span className="relative w-[18px] h-[18px] flex-shrink-0">
-              <Image src="/bsc.png" alt="" fill className="object-contain rounded" sizes="18px" />
+              <Image src="/bscscan.png" alt="" fill className="object-contain rounded" sizes="18px" />
             </span>
             <ExternalLink className="h-4 w-4" />
             View on BSC Explorer

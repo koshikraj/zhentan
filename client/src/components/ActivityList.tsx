@@ -35,13 +35,15 @@ const headerVariants = {
 interface ActivityListProps {
   transactions: TransactionWithStatus[];
   loading: boolean;
+  /** When true, render without Card wrapper (for use inside tabbed card) */
+  embedded?: boolean;
 }
 
-export function ActivityList({ transactions, loading }: ActivityListProps) {
+export function ActivityList({ transactions, loading, embedded }: ActivityListProps) {
   const [selectedTx, setSelectedTx] = useState<TransactionWithStatus | null>(null);
 
-  return (
-    <Card>
+  const content = (
+    <>
       <motion.div
         className="flex items-center gap-2 mb-4"
         initial="hidden"
@@ -106,6 +108,7 @@ export function ActivityList({ transactions, loading }: ActivityListProps) {
         open={selectedTx !== null}
         onClose={() => setSelectedTx(null)}
       />
-    </Card>
+    </>
   );
+  return embedded ? <div className="p-4 sm:p-6">{content}</div> : <Card>{content}</Card>;
 }
