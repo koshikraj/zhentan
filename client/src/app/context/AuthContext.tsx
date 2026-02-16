@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user: AuthUser | null = useMemo(() => {
     if (!privyUser) return null;
     const google = (privyUser as { google?: { email?: string; name?: string; picture?: string } }).google;
+    console.log("privyUser", privyUser);
     return {
       email: google?.email,
       name: google?.name,

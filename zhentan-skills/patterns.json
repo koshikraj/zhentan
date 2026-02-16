@@ -2,9 +2,9 @@
   "recipients": {
     "0x67d29520c6f9579fe4b32dcba346620846ef98d2": {
       "label": "contractor-alice",
-      "totalTxCount": 71,
-      "totalVolume": "21556.30",
-      "avgAmount": "303.61",
+      "totalTxCount": 78,
+      "totalVolume": "21556.44",
+      "avgAmount": "276.36",
       "maxAmount": "4800.00",
       "typicalHours": [
         9,
@@ -19,10 +19,11 @@
         13,
         17,
         7,
-        6
+        6,
+        8
       ],
       "category": "payroll",
-      "lastSeen": "2026-02-07T12:49:14.799Z"
+      "lastSeen": "2026-02-16T14:11:21.813Z"
     },
     "0x958543756a4c7ac6fb361f0efbfecd98e4d297db": {
       "label": null,
@@ -39,6 +40,18 @@
         6
       ],
       "category": "unknown"
+    },
+    "0x9378d03b09c8a8426a9d6922a737806af378cafe": {
+      "label": null,
+      "totalTxCount": 5,
+      "totalVolume": "0.00",
+      "avgAmount": "0.00",
+      "maxAmount": "0.00",
+      "lastSeen": "2026-02-16T14:22:22.088Z",
+      "typicalHours": [
+        14
+      ],
+      "category": "unknown"
     }
   },
   "dailyStats": {
@@ -53,6 +66,10 @@
     "2026-02-07": {
       "txCount": 3,
       "totalVolume": "3.00"
+    },
+    "2026-02-16": {
+      "txCount": 12,
+      "totalVolume": "0.14"
     }
   },
   "globalLimits": {

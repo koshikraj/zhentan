@@ -10,8 +10,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const AGENT_SIGN_SCRIPT = 'scripts/agent-sign.js';
-const SCRIPTS_DIR = '';
+const AGENT_SIGN_SCRIPT = '/home/koshik/Documents/repos/zhentan/scripts/agent-sign.js';
+const SCRIPTS_DIR = '/home/koshik/Documents/repos/zhentan/scripts';
 
 const txId = process.argv[2];
 if (!txId) {

@@ -8,8 +8,7 @@ const ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 export async function GET(request: NextRequest) {
   try {
     const safeAddress =
-      request.nextUrl.searchParams.get("safeAddress") ||
-      process.env.SAFE_ADDRESS;
+      request.nextUrl.searchParams.get("safeAddress")
     const usdcAddress = process.env.USDC_CONTRACT_ADDRESS;
 
     if (!safeAddress || !ADDRESS_RE.test(safeAddress)) {
