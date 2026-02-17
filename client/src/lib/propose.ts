@@ -41,9 +41,8 @@ export async function proposeTransaction({
 }: ProposeParams) {
   const pimlicoApiKey = requireEnv(process.env.NEXT_PUBLIC_PIMLICO_API_KEY, "NEXT_PUBLIC_PIMLICO_API_KEY");
   const ownerAddr2 = requireEnv(process.env.NEXT_PUBLIC_AGENT_ADDRESS, "NEXT_PUBLIC_AGENT_ADDRESS");
-  const defaultUsdc = process.env.NEXT_PUBLIC_USDC_CONTRACT;
-  const tokenAddress = tokenAddressParam ?? defaultUsdc;
-  if (!tokenAddress) throw new Error("Token address required (NEXT_PUBLIC_USDC_CONTRACT or tokenAddress)");
+  const tokenAddress = tokenAddressParam;
+  if (!tokenAddress) throw new Error("Token address required)");
   const decimals = tokenDecimals ?? USDC_DECIMALS;
   const symbol = tokenSymbol ?? "USDC";
 

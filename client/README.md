@@ -24,7 +24,7 @@ Next.js frontend for the Zhentan wallet: dashboard, send/receive USDC, activity,
 
    Edit `.env.local` and set at least:
 
-   - **Propose flow:** `NEXT_PUBLIC_PIMLICO_API_KEY`, `NEXT_PUBLIC_AGENT_ADDRESS`, `NEXT_PUBLIC_USDC_CONTRACT`, `NEXT_PUBLIC_PRIVY_APP_ID`
+   - **Propose flow:** `NEXT_PUBLIC_PIMLICO_API_KEY`, `NEXT_PUBLIC_AGENT_ADDRESS`, `NEXT_PUBLIC_PRIVY_APP_ID`
    - **Server-side (if using built-in API routes):** `PIMLICO_API_KEY`, `USDC_CONTRACT_ADDRESS`, `QUEUE_PATH` (and optionally `STATE_PATH`, `PATTERNS_PATH`)
 ## Run
 
