@@ -37,6 +37,7 @@ export async function proposeTransaction({
   tokenAddress: tokenAddressParam,
   tokenDecimals,
   tokenSymbol,
+  tokenIconUrl,
 }: ProposeParams) {
   const pimlicoApiKey = requireEnv(process.env.NEXT_PUBLIC_PIMLICO_API_KEY, "NEXT_PUBLIC_PIMLICO_API_KEY");
   const ownerAddr2 = requireEnv(process.env.NEXT_PUBLIC_AGENT_ADDRESS, "NEXT_PUBLIC_AGENT_ADDRESS");
@@ -115,6 +116,7 @@ export async function proposeTransaction({
     amount,
     token: symbol,
     usdcAddress: tokenAddress,
+    tokenIconUrl: tokenIconUrl ?? null,
     proposedBy: ownerAccount.address,
     signatures: [ownerAccount.address],
     ownerAddresses: [ownerAddress, ownerAddr2],

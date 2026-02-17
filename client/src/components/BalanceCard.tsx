@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Skeleton } from "./ui/Skeleton";
 import { truncateAddress } from "@/lib/format";
@@ -23,9 +24,12 @@ const cardVariants = {
 interface BalanceCardProps {
   /** Total portfolio value in USD (from Zerion) */
   portfolioTotalUsd: number | null;
+  /** 24h portfolio % change (from Zerion), null if unavailable */
+  portfolioPercentChange24h?: number | null;
   safeAddress: string;
   loading: boolean;
-  email?: string | null;
+  /** Display name for greeting (e.g. "gm, {name}") */
+  name?: string | null;
   onRefresh?: () => void;
   onToggleSend: () => void;
   onToggleReceive: () => void;
@@ -35,9 +39,10 @@ interface BalanceCardProps {
 
 export function BalanceCard({
   portfolioTotalUsd,
+  portfolioPercentChange24h,
   safeAddress,
   loading,
-  email,
+  name,
   onRefresh,
   onToggleSend,
   onToggleReceive,
@@ -57,6 +62,8 @@ export function BalanceCard({
     ? `${safeAddress.slice(0, 6)} ${safeAddress.slice(6, 10)} ${safeAddress.slice(10, 14)} ···· ···· ${safeAddress.slice(-4)}`
     : truncateAddress(safeAddress);
 
+  const greeting = `gm, ${name?.trim() || "there"}`;
+
   return (
     <motion.div
       className="balance-card p-6 sm:p-8 text-left relative"
@@ -64,18 +71,21 @@ export function BalanceCard({
       animate="visible"
       variants={cardVariants}
     >
-      {/* Top row: chip + email */}
+      {/* Top row: chip + greeting */}
       <div className="flex items-center justify-between mb-8">
-        <div className="balance-card-chip" aria-hidden />
-        {email ? (
-          <span className="text-xs font-semibold italic tracking-wide text-claw/90 truncate max-w-[160px] sm:max-w-[220px]" title={email}>
-            {email}
-          </span>
-        ) : (
-          <span className="text-xs font-medium italic tracking-wide logo-text">
-            Zhentan
-          </span>
-        )}
+        <div className="balance-card-chip flex items-center justify-center overflow-hidden rounded-lg p-1" aria-hidden>
+          <Image
+            src="/bsc-yellow.png"
+            alt=""
+            width={28}
+            height={22}
+            className="object-contain opacity-95 drop-shadow-sm"
+            unoptimized
+          />
+        </div>
+        <span className="text-base font-medium italic tracking-wide text-claw/90 truncate max-w-[160px] sm:max-w-[220px]">
+          {greeting}
+        </span>
       </div>
 
       {/* Balance + refresh */}
@@ -107,9 +117,23 @@ export function BalanceCard({
           ${displayTotal ?? "—"}
         </motion.div>
       )}
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <span className="text-xs font-medium text-claw/80">Portfolio (BNB Chain)</span>
-      </div>
+      {portfolioPercentChange24h != null && !loading && (
+        <div className="flex items-baseline gap-2 mt-1.5">
+          <span
+            className={`text-sm font-medium tabular-nums ${
+              portfolioPercentChange24h > 0
+                ? "text-emerald-400"
+                : portfolioPercentChange24h < 0
+                  ? "text-red-400"
+                  : "text-slate-500"
+            }`}
+          >
+            {portfolioPercentChange24h > 0 ? "+" : ""}
+            {portfolioPercentChange24h.toFixed(2)}%
+          </span>
+          <span className="text-xs text-slate-500">24h</span>
+        </div>
+      )}
 
       {/* Card number style address */}
       <button

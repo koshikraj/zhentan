@@ -7,7 +7,10 @@ export interface PendingTransaction {
   token: string;
   /** If set, used in activity to show send vs receive. Defaults to "send" for proposed outbound transfers. */
   direction?: TransactionDirection;
+  /** ERC20 token contract address (used for execution and display). */
   usdcAddress: string;
+  /** Token icon URL for display in activity (e.g. from Zerion). Stored when proposing. */
+  tokenIconUrl?: string | null;
   proposedBy: string;
   signatures: string[];
   ownerAddresses: string[];
@@ -103,6 +106,8 @@ export interface TokenPosition {
 export interface PortfolioResponse {
   tokens: TokenPosition[];
   totalUsd: number;
+  /** 24h portfolio % change, null if unavailable */
+  percentChange24h?: number | null;
 }
 
 export interface ProposeParams {
@@ -116,6 +121,8 @@ export interface ProposeParams {
   tokenDecimals?: number;
   /** Token symbol for display (e.g. "USDC") */
   tokenSymbol?: string;
+  /** Token icon URL for display in activity (e.g. from Zerion) */
+  tokenIconUrl?: string | null;
 }
 
 // Invoice types

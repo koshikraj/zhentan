@@ -20,6 +20,7 @@ function Dashboard() {
   const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address);
 
   const [portfolioTotalUsd, setPortfolioTotalUsd] = useState<number | null>(null);
+  const [portfolioPercentChange24h, setPortfolioPercentChange24h] = useState<number | null>(null);
   const [tokens, setTokens] = useState<TokenPosition[]>([]);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [transactions, setTransactions] = useState<TransactionWithStatus[]>([]);
@@ -38,6 +39,7 @@ function Dashboard() {
       if (res.ok) {
         const data: PortfolioResponse = await res.json();
         setPortfolioTotalUsd(data.totalUsd);
+        setPortfolioPercentChange24h(data.percentChange24h ?? null);
         setTokens(data.tokens ?? []);
       }
     } catch {
@@ -114,9 +116,15 @@ function Dashboard() {
         <div className="flex-shrink-0 mb-4 sm:mb-6">
           <BalanceCard
             portfolioTotalUsd={portfolioTotalUsd}
+            portfolioPercentChange24h={portfolioPercentChange24h}
             safeAddress={safeAddress}
             loading={balanceLoading}
-            email={user?.email}
+            name={
+              user?.name?.trim() ||
+              (user?.email
+                ? user.email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                : null)
+            }
             onRefresh={handleRefresh}
             onToggleSend={() => {
               setSendOpen(!sendOpen);

@@ -100,7 +100,7 @@
       135deg,
       rgba(255, 255, 255, 0.06) 0%,
       transparent 50%,
-      rgba(240, 185, 11, 0.04) 100%
+      rgba(34, 197, 94, 0.04) 100%
     );
     pointer-events: none;
     border-radius: inherit;
@@ -109,8 +109,29 @@
   .balance-card-chip {
     width: 40px;
     height: 32px;
-    background: linear-gradient(145deg, #d4a853 0%, #b8860b 50%, #8b6914 100%);
-    border-radius: 8px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.3);
+    border-radius: 6px;
+    /* Metallic gold base with bevel: lighter top-left, darker bottom-right */
+    background: linear-gradient(145deg, #d4a853 0%, #b8860b 25%, #8b6914 75%, #6b5344 100%);
+    box-shadow:
+      inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+      inset -1px -1px 0 rgba(0, 0, 0, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.2);
+    /* Subtle diagonal lines like a real chip */
+    position: relative;
+  }
+
+  .balance-card-chip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+      105deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 3px
+    );
+    pointer-events: none;
   }
 }

@@ -7,6 +7,8 @@ export interface PendingTransaction {
   token: string;
   direction?: TransactionDirection;
   usdcAddress: string;
+  /** Token icon URL for display (stored when proposing). */
+  tokenIconUrl?: string | null;
   proposedBy: string;
   signatures: string[];
   ownerAddresses: string[];

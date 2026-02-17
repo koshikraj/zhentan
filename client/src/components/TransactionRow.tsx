@@ -14,9 +14,38 @@ interface TransactionRowProps {
   onClick?: () => void;
 }
 
+function TokenIcon({
+  symbol,
+  iconUrl,
+  size = 16,
+}: {
+  symbol: string;
+  iconUrl?: string | null;
+  size?: number;
+}) {
+  if (iconUrl) {
+    return (
+      <span className="relative flex-shrink-0 rounded-full overflow-hidden bg-white/10" style={{ width: size, height: size }}>
+        <Image src={iconUrl} alt="" width={size} height={size} className="object-cover" unoptimized />
+      </span>
+    );
+  }
+  return (
+    <span
+      className="flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-claw"
+      style={{ width: size, height: size }}
+    >
+      {(symbol || "??").slice(0, 2)}
+    </span>
+  );
+}
+
 export function TransactionRow({ tx, index = 0, onClick }: TransactionRowProps) {
   const isReceive = tx.direction === "receive";
   const DirectionIcon = isReceive ? ArrowDownLeft : ArrowUpRight;
+
+  const isUsdc = tx.token?.toUpperCase() === "USDC";
+  const showUsdcIcon = isUsdc && !tx.tokenIconUrl;
 
   return (
     <motion.div
@@ -41,7 +70,11 @@ export function TransactionRow({ tx, index = 0, onClick }: TransactionRowProps) 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium text-slate-200 truncate inline-flex items-center gap-1.5">
-            <UsdcIcon size={16} className="flex-shrink-0 opacity-90" />
+            {showUsdcIcon ? (
+              <UsdcIcon size={16} className="flex-shrink-0 opacity-90" />
+            ) : (
+              <TokenIcon symbol={tx.token} iconUrl={tx.tokenIconUrl} size={16} />
+            )}
             {tx.amount} {tx.token}
           </span>
           <span className="text-slate-600 shrink-0">{isReceive ? "←" : "→"}</span>

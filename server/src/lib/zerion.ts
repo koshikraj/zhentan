@@ -30,6 +30,8 @@ export interface TokenPosition {
 export interface PortfolioResponse {
   tokens: TokenPosition[];
   totalUsd: number;
+  /** 24h portfolio % change (from Zerion), null if unavailable */
+  percentChange24h: number | null;
 }
 
 function getChainId(zerionChainId: string): number | undefined {
@@ -130,8 +132,37 @@ export async function fetchTokenPositions(
   return { tokens: [] };
 }
 
+async function fetchWalletPortfolioChange(
+  address: string,
+  maxRetries = 2
+): Promise<number | null> {
+  if (!ZERION_API_KEY) return null;
+  const url = `${BASE_URL}/wallets/${address}/portfolio?${new URLSearchParams({ currency: "usd", "filter[positions]": "no_filter" })}`;
+  const options: RequestInit = {
+    method: "GET",
+    headers: { accept: "application/json", authorization: `Basic ${ZERION_API_KEY}` },
+  };
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const percent = data?.data?.attributes?.changes?.percent_1d;
+      return typeof percent === "number" ? percent : null;
+    } catch {
+      if (attempt === maxRetries - 1) return null;
+      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+    }
+  }
+  return null;
+}
+
 export async function getPortfolioForAddress(address: string): Promise<PortfolioResponse> {
-  const { tokens } = await fetchTokenPositions(address, 100);
+  const [positionsResult, percentChange24h] = await Promise.all([
+    fetchTokenPositions(address, 100),
+    fetchWalletPortfolioChange(address),
+  ]);
+  const { tokens } = positionsResult;
   const totalUsd = tokens.reduce((sum, t) => sum + (t.usdValue ?? 0), 0);
-  return { tokens, totalUsd };
+  return { tokens, totalUsd, percentChange24h };
 }

@@ -159,6 +159,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         tokenAddress: selectedToken?.address ?? undefined,
         tokenDecimals: selectedToken?.decimals,
         tokenSymbol: selectedToken?.symbol,
+        tokenIconUrl: selectedToken?.iconUrl ?? undefined,
       });
 
       onRefreshActivities?.();
