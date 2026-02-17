@@ -39,9 +39,14 @@ export function notifyTelegram(
     args.push("--json");
   }
 
-  execFile("openclaw", args, (err, stdout) => {
+  execFile("/usr/local/bin/openclaw", args, (err, stdout, stderr) => {
     if (err) {
+      const code = "code" in err ? (err as NodeJS.ErrnoException).code : (err as { exitCode?: number }).exitCode;
       console.error("Telegram notification failed:", err.message);
+      if (code != null) console.error("Error code:", code);
+      if (stderr) console.error("openclaw stderr:", stderr.trim());
+      if (stdout) console.error("openclaw stdout:", stdout?.trim());
+      console.error("Message length:", message.length, "chars; preview:", JSON.stringify(message.slice(0, 80)) + (message.length > 80 ? "…" : ""));
       return;
     }
     if (txId && stdout) {
@@ -66,7 +71,7 @@ export function editNotification(txId: string, newMessage: string): void {
   }
 
   execFile(
-    "openclaw",
+    "/usr/local/bin/openclaw",
     [
       "message",
       "edit",
@@ -79,9 +84,13 @@ export function editNotification(txId: string, newMessage: string): void {
       "-m",
       newMessage,
     ],
-    (err) => {
+    (err, stdout, stderr) => {
       if (err) {
+        const code = "code" in err ? (err as NodeJS.ErrnoException).code : (err as { exitCode?: number }).exitCode;
         console.error("Telegram edit failed:", err.message);
+        if (code != null) console.error("Error code:", code);
+        if (stderr) console.error("openclaw stderr:", stderr.trim());
+        if (stdout) console.error("openclaw stdout:", stdout?.trim());
       } else {
         notificationMessages.delete(txId);
       }
