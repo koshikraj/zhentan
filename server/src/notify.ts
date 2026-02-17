@@ -1,6 +1,8 @@
 import { execFile } from "child_process";
 
 const TELEGRAM_TARGET = "593960240";
+/** Allow openclaw time to complete (e.g. Telegram API can be slow). Default execFile has no timeout. */
+const OPENCLAW_TIMEOUT_MS = 60_000;
 
 interface InlineButton {
   text: string;
@@ -44,11 +46,13 @@ export function notifyTelegram(
     args.push("--json");
   }
 
-  execFile("/usr/local/bin/openclaw", args, (err, stdout, stderr) => {
+  execFile("/usr/local/bin/openclaw", args, { timeout: OPENCLAW_TIMEOUT_MS }, (err, stdout, stderr) => {
     if (err) {
       const code = "code" in err ? (err as NodeJS.ErrnoException).code : (err as { exitCode?: number }).exitCode;
+      const killed = (err as { killed?: boolean }).killed;
       console.error("Telegram notification failed:", err.message);
       if (code != null) console.error("Error code:", code);
+      if (killed) console.error("Process was killed (timeout after", OPENCLAW_TIMEOUT_MS, "ms?)");
       if (stderr) console.error("openclaw stderr:", stderr.trim());
       if (stdout) console.error("openclaw stdout:", stdout?.trim());
       console.error("Message length:", message.length, "chars; preview:", JSON.stringify(message.slice(0, 80)) + (message.length > 80 ? "…" : ""));
@@ -89,11 +93,14 @@ export function editNotification(txId: string, newMessage: string): void {
       "-m",
       normalizeMessageForCli(newMessage),
     ],
+    { timeout: OPENCLAW_TIMEOUT_MS },
     (err, stdout, stderr) => {
       if (err) {
         const code = "code" in err ? (err as NodeJS.ErrnoException).code : (err as { exitCode?: number }).exitCode;
+        const killed = (err as { killed?: boolean }).killed;
         console.error("Telegram edit failed:", err.message);
         if (code != null) console.error("Error code:", code);
+        if (killed) console.error("Process was killed (timeout after", OPENCLAW_TIMEOUT_MS, "ms?)");
         if (stderr) console.error("openclaw stderr:", stderr.trim());
         if (stdout) console.error("openclaw stdout:", stdout?.trim());
       } else {
