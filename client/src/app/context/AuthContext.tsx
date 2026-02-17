@@ -13,6 +13,7 @@ import { usePrivy, useWallets, useCreateWallet } from "@privy-io/react-auth";
 import { createWalletClient, custom } from "viem";
 import { bsc } from "viem/chains";
 import type { Address, LocalAccount } from "viem";
+import { useSafeAddress } from "@/lib/useSafeAddress";
 
 export interface AuthUser {
   email?: string;
@@ -32,6 +33,10 @@ export interface AuthContextType {
   logout: () => void;
   /** Returns a signer (wallet client + account) for the embedded wallet (for Safe signing). */
   getOwnerAccount: () => Promise<LocalAccount | null>;
+  /** Deterministic Safe multisig address for this user + agent */
+  safeAddress: string | null;
+  /** Whether the Safe address is still being computed */
+  safeLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -91,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     privyLogout();
   }, [privyLogout]);
 
+  const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address ?? undefined);
+
   const getOwnerAccount = useCallback(async (): Promise<LocalAccount | null> => {
     if (!primaryWallet) return null;
     try {
@@ -117,8 +124,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       getOwnerAccount,
+      safeAddress,
+      safeLoading,
     }),
-    [user, wallet, loading, login, logout, getOwnerAccount]
+    [user, wallet, loading, login, logout, getOwnerAccount, safeAddress, safeLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

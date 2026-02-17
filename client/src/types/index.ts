@@ -1,5 +1,12 @@
 export type TransactionDirection = "send" | "receive";
 
+export interface DappMetadata {
+  name: string;
+  url: string;
+  icons?: string[];
+  description?: string;
+}
+
 export interface PendingTransaction {
   id: string;
   to: string;
@@ -19,6 +26,14 @@ export interface PendingTransaction {
   userOp: Record<string, unknown>;
   partialSignatures: string;
   proposedAt: string;
+  /** Transaction origin: "send_panel" for manual sends, "walletconnect" for DApp requests */
+  source?: "send_panel" | "walletconnect";
+  /** Raw hex calldata from DApp (for WalletConnect transactions) */
+  calldata?: string;
+  /** Native value in wei as string (for WalletConnect transactions) */
+  value?: string;
+  /** DApp metadata from WalletConnect session */
+  dappMetadata?: DappMetadata;
   // Execution
   executedAt?: string;
   executedBy?: string;

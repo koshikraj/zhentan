@@ -5,19 +5,20 @@ import { TopBar } from "@/components/TopBar";
 import { BalanceCard } from "@/components/BalanceCard";
 import { SendPanel } from "@/components/SendPanel";
 import { ReceivePanel } from "@/components/ReceivePanel";
+import { WalletConnectPanel } from "@/components/WalletConnectPanel";
+import { WCSessionProposal } from "@/components/WCSessionProposal";
+import { WCTransactionRequest } from "@/components/WCTransactionRequest";
 import { ActivityList } from "@/components/ActivityList";
 import { TokenList } from "@/components/TokenList";
 import { Dialog } from "@/components/ui/Dialog";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ThemeLoader } from "@/components/ThemeLoader";
 import { useAuth } from "@/app/context/AuthContext";
-import { useSafeAddress } from "@/lib/useSafeAddress";
 import { getBackendApiUrl } from "@/lib/api";
 import type { TransactionWithStatus, StatusResponse, TokenPosition, PortfolioResponse } from "@/types";
 
 function Dashboard() {
-  const { user, wallet } = useAuth();
-  const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address);
+  const { user, safeAddress, safeLoading } = useAuth();
 
   const [portfolioTotalUsd, setPortfolioTotalUsd] = useState<number | null>(null);
   const [portfolioPercentChange24h, setPortfolioPercentChange24h] = useState<number | null>(null);
@@ -28,6 +29,7 @@ function Dashboard() {
   const [screeningMode, setScreeningMode] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const [receiveOpen, setReceiveOpen] = useState(false);
+  const [connectOpen, setConnectOpen] = useState(false);
   const [listTab, setListTab] = useState<"tokens" | "activity">("activity");
 
   const fetchPortfolio = useCallback(async () => {
@@ -129,13 +131,21 @@ function Dashboard() {
             onToggleSend={() => {
               setSendOpen(!sendOpen);
               setReceiveOpen(false);
+              setConnectOpen(false);
             }}
             onToggleReceive={() => {
               setReceiveOpen(!receiveOpen);
               setSendOpen(false);
+              setConnectOpen(false);
+            }}
+            onToggleConnect={() => {
+              setConnectOpen(!connectOpen);
+              setSendOpen(false);
+              setReceiveOpen(false);
             }}
             sendOpen={sendOpen}
             receiveOpen={receiveOpen}
+            connectOpen={connectOpen}
           />
         </div>
 
@@ -157,6 +167,13 @@ function Dashboard() {
         <Dialog open={receiveOpen} onClose={() => setReceiveOpen(false)}>
           <ReceivePanel safeAddress={safeAddress} />
         </Dialog>
+
+        <Dialog open={connectOpen} onClose={() => setConnectOpen(false)} title="Connect DApp">
+          <WalletConnectPanel />
+        </Dialog>
+
+        <WCSessionProposal />
+        <WCTransactionRequest />
 
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden glass-card rounded-2xl">
           <div className="flex-shrink-0 flex border-b border-white/[0.08] px-5 sm:px-8 pt-5 pb-0 gap-8">

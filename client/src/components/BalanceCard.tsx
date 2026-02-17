@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Skeleton } from "./ui/Skeleton";
 import { truncateAddress } from "@/lib/format";
-import { ArrowUpRight, ArrowDownLeft, Copy, Check, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Copy, Check, RefreshCw, Plug } from "lucide-react";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 40, scale: 0.98 },
@@ -33,8 +33,10 @@ interface BalanceCardProps {
   onRefresh?: () => void;
   onToggleSend: () => void;
   onToggleReceive: () => void;
+  onToggleConnect?: () => void;
   sendOpen: boolean;
   receiveOpen: boolean;
+  connectOpen?: boolean;
 }
 
 export function BalanceCard({
@@ -46,8 +48,10 @@ export function BalanceCard({
   onRefresh,
   onToggleSend,
   onToggleReceive,
+  onToggleConnect,
   sendOpen,
   receiveOpen,
+  connectOpen,
 }: BalanceCardProps) {
   const [copied, setCopied] = useState(false);
   const displayTotal = portfolioTotalUsd != null ? portfolioTotalUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
@@ -179,6 +183,20 @@ export function BalanceCard({
           <ArrowDownLeft className="h-5 w-5" />
           Receive
         </button>
+        {onToggleConnect && (
+          <button
+            type="button"
+            onClick={onToggleConnect}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 sm:py-3.5 text-sm font-semibold transition-all min-h-[2.75rem] touch-manipulation ${
+              connectOpen
+                ? "bg-claw text-white shadow-[0_4px_20px_-2px_rgba(240,185,11,0.4)]"
+                : "bg-white/[0.08] text-slate-200 hover:bg-white/[0.12]"
+            }`}
+          >
+            <Plug className="h-5 w-5" />
+            Connect
+          </button>
+        )}
       </motion.div>
     </motion.div>
   );

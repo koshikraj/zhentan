@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.8.1",
+    "@reown/walletkit": "^1.5.2",
+    "@walletconnect/core": "^2.23.5",
+    "@walletconnect/utils": "^2.23.5",
     "clsx": "^2.1.0",
     "framer-motion": "^12.33.0",
     "lucide-react": "^0.300.0",
