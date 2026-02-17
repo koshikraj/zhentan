@@ -38,6 +38,12 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
       queue.pending.push(pendingTx);
       writeFileSync(queuePath, JSON.stringify(queue, null, 2));
 
+      // When screening is disabled, only queue; client will call execute. Skip risk analysis.
+      if (pendingTx.screeningDisabled) {
+        res.json({ success: true, id: pendingTx.id });
+        return;
+      }
+
       // --- Risk analysis ---
       const patternsPath = process.env.PATTERNS_PATH;
       if (!patternsPath) {

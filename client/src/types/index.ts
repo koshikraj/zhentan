@@ -18,6 +18,8 @@ export interface PendingTransaction {
   usdcAddress: string;
   /** Token icon URL for display in activity (e.g. from Zerion). Stored when proposing. */
   tokenIconUrl?: string | null;
+  /** When true, server skips risk analysis; client triggers execute. */
+  screeningDisabled?: boolean;
   proposedBy: string;
   signatures: string[];
   ownerAddresses: string[];
@@ -138,6 +140,8 @@ export interface ProposeParams {
   tokenSymbol?: string;
   /** Token icon URL for display in activity (e.g. from Zerion) */
   tokenIconUrl?: string | null;
+  /** When true, server skips risk analysis and auto-execute; client will call execute. */
+  screeningDisabled?: boolean;
 }
 
 // Invoice types

@@ -28,6 +28,8 @@ export interface ProposeDappParams {
   ownerAddress: string;
   getOwnerAccount: () => Promise<LocalAccount | null>;
   dappMetadata?: DappMetadata;
+  /** When true, server skips risk analysis; client will call execute. */
+  screeningDisabled?: boolean;
 }
 
 function requireEnv(val: string | undefined, name: string): string {
@@ -42,6 +44,7 @@ export async function proposeDappTransaction({
   ownerAddress,
   getOwnerAccount,
   dappMetadata,
+  screeningDisabled,
 }: ProposeDappParams) {
   const pimlicoApiKey = requireEnv(process.env.NEXT_PUBLIC_PIMLICO_API_KEY, "NEXT_PUBLIC_PIMLICO_API_KEY");
   const ownerAddr2 = requireEnv(process.env.NEXT_PUBLIC_AGENT_ADDRESS, "NEXT_PUBLIC_AGENT_ADDRESS");
@@ -105,6 +108,7 @@ export async function proposeDappTransaction({
     amount: "0",
     token: "BNB",
     usdcAddress: "",
+    ...(screeningDisabled && { screeningDisabled: true }),
     proposedBy: ownerAccount.address,
     signatures: [ownerAccount.address],
     ownerAddresses: [ownerAddress, ownerAddr2],

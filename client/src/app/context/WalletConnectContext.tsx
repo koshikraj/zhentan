@@ -250,7 +250,18 @@ export function WalletConnectProvider({ children }: { children: ReactNode }) {
     setRequestStatus("signing");
 
     try {
-      // Propose through the Safe pipeline
+      // Check screening mode before propose so queue can skip risk when off
+      let screeningOn = true;
+      try {
+        const statusRes = await fetch(getBackendApiUrl("status"));
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          screeningOn = statusData.screeningMode !== false;
+        }
+      } catch {
+        // Default to screening on if status fetch fails
+      }
+
       const pending = await proposeDappTransaction({
         to: txParams.to,
         value: txParams.value ? BigInt(txParams.value) : 0n,
@@ -258,12 +269,30 @@ export function WalletConnectProvider({ children }: { children: ReactNode }) {
         ownerAddress: wallet.address,
         getOwnerAccount,
         dappMetadata: pendingRequest.dappMetadata,
+        screeningDisabled: !screeningOn,
       });
 
-      setRequestStatus("polling");
+      let txHash: string;
 
-      // Poll for execution result
-      const txHash = await pollForExecution(pending.id, safeAddress);
+      if (!screeningOn) {
+        // Screening OFF: execute immediately (same as SendPanel)
+        setRequestStatus("queued");
+        const execRes = await fetch(getBackendApiUrl("execute"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ txId: pending.id }),
+        });
+        if (!execRes.ok) {
+          const data = await execRes.json();
+          throw new Error(data.error || "Execution failed");
+        }
+        const execData = await execRes.json();
+        txHash = execData.txHash;
+      } else {
+        // Screening ON: poll for AI agent execution
+        setRequestStatus("polling");
+        txHash = await pollForExecution(pending.id, safeAddress);
+      }
       setRequestStatus("success");
       setRequestTxHash(txHash);
 
