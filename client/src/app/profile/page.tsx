@@ -9,6 +9,7 @@ import { AuthGuard } from "@/components/AuthGuard";
 import { useAuth } from "@/app/context/AuthContext";
 import { Wallet, Shield, Copy, Check, ExternalLink, LogOut, Bot } from "lucide-react";
 import { truncateAddress } from "@/lib/format";
+import { getBackendApiUrl } from "@/lib/api";
 import { useSafeAddress } from "@/lib/useSafeAddress";
 import { toHex } from "viem";
 
@@ -38,7 +39,7 @@ function ProfilePageContent() {
   const safeAddress = computedSafeAddress || "";
 
   useEffect(() => {
-    fetch("/api/status")
+    fetch(getBackendApiUrl("status"))
       .then((res) => res.json())
       .then((data) => setScreeningMode(data.screeningMode ?? true))
       .catch(() => {});

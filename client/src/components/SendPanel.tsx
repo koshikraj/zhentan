@@ -95,7 +95,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     setResolving(true);
     setResolveError(null);
     try {
-      const res = await fetch(`/api/resolve?name=${encodeURIComponent(trimmed)}`);
+      const res = await fetch(`${getBackendApiUrl("resolve")}?name=${encodeURIComponent(trimmed)}`);
       const data = await res.json();
       if (!res.ok) {
         setResolvedAddress(null);

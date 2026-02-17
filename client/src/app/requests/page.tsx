@@ -46,7 +46,7 @@ function RequestsPageContent() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("/api/status");
+      const res = await fetch(getBackendApiUrl("status"));
       if (res.ok) {
         const data: StatusResponse = await res.json();
         setScreeningMode(data.screeningMode);

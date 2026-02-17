@@ -1,15 +1,20 @@
 /**
- * Base URL for queue/execute/invoices/transactions APIs.
- * When NEXT_PUBLIC_BACKEND_URL is set (e.g. Vercel + separate server), use that.
- * Otherwise use same-origin Next.js API routes.
+ * Base URL for all backend API endpoints (Express server).
+ * Defaults to http://localhost:3001 for local dev.
  */
-const BACKEND_BASE = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "").replace(
-  /\/$/,
-  ""
-);
+const BACKEND_BASE = (
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
+).replace(/\/$/, "");
 
-export type BackendApiPath = "transactions" | "queue" | "execute" | "invoices" | "portfolio";
+export type BackendApiPath =
+  | "transactions"
+  | "queue"
+  | "execute"
+  | "invoices"
+  | "portfolio"
+  | "status"
+  | "resolve";
 
 export function getBackendApiUrl(path: BackendApiPath): string {
-  return BACKEND_BASE ? `${BACKEND_BASE}/${path}` : `/api/${path}`;
+  return `${BACKEND_BASE}/${path}`;
 }

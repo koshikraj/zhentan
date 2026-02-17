@@ -6,6 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { Card } from "@/components/ui/Card";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
+import { getBackendApiUrl } from "@/lib/api";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 40, scale: 0.98 },
@@ -27,7 +28,7 @@ function SettingsPageContent() {
   const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
-    fetch("/api/status")
+    fetch(getBackendApiUrl("status"))
       .then((res) => res.json())
       .then((data) => {
         setScreeningMode(data.screeningMode ?? true);
@@ -39,7 +40,7 @@ function SettingsPageContent() {
   const handleToggle = async () => {
     setToggling(true);
     try {
-      const res = await fetch("/api/status", {
+      const res = await fetch(getBackendApiUrl("status"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ screeningMode: !screeningMode }),
