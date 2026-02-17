@@ -8,35 +8,13 @@ import { proposeTransaction } from "@/lib/propose";
 import { useAuth } from "@/app/context/AuthContext";
 import { UsdcIcon } from "./icons/UsdcIcon";
 import { ThemeLoaderSpinner } from "./ThemeLoader";
-import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock } from "lucide-react";
-import { truncateAddress, formatDate, statusLabel } from "@/lib/format";
+import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock, Coins } from "lucide-react";
+import { truncateAddress, formatDate, statusLabel, formatTokenAmount } from "@/lib/format";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 import { getBackendApiUrl } from "@/lib/api";
+import { Dialog } from "./ui/Dialog";
+import { TokenRow } from "./TokenRow";
 import type { TransactionWithStatus, TokenPosition } from "@/types";
-
-function TokenOption({ token, selected }: { token: TokenPosition; selected: boolean }) {
-  return (
-    <div className="flex items-center gap-3">
-      {token.iconUrl ? (
-        <span className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
-          <Image src={token.iconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
-        </span>
-      ) : (
-        <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-claw">
-          {token.symbol.slice(0, 2)}
-        </span>
-      )}
-      <div className="flex-1 min-w-0 text-left">
-        <p className="text-sm font-semibold text-white">{token.symbol}</p>
-        <p className="text-xs text-slate-400 truncate">
-          {token.balance} {token.symbol}
-          {token.usdValue != null && ` · $${token.usdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-        </p>
-      </div>
-      {selected && <CheckCircle2 className="h-4 w-4 text-claw flex-shrink-0" />}
-    </div>
-  );
-}
 
 interface SendPanelProps {
   onSuccess: () => void;
@@ -160,10 +138,12 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         tokenDecimals: selectedToken?.decimals,
         tokenSymbol: selectedToken?.symbol,
         tokenIconUrl: selectedToken?.iconUrl ?? undefined,
+        screeningDisabled: !screeningMode,
       });
 
       onRefreshActivities?.();
 
+      console.log("screeningMode", screeningMode);
       if (!screeningMode) {
         // 2. Screening OFF: execute immediately
         const execRes = await fetch(getBackendApiUrl("execute"), {
@@ -434,7 +414,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         </label>
         <button
           type="button"
-          onClick={() => setTokenSelectorOpen((o) => !o)}
+          onClick={() => setTokenSelectorOpen(true)}
           className="w-full flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4 text-left hover:bg-white/[0.08] transition-colors min-h-[2.75rem] touch-manipulation"
         >
           {selectedToken ? (
@@ -451,41 +431,56 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
               <div className="flex-1 min-w-0">
                 <p className="text-base font-semibold text-white">{selectedToken.symbol}</p>
                 <p className="text-sm text-slate-400">
-                  Balance: {selectedToken.balance} {selectedToken.symbol}
+                  {formatTokenAmount(selectedToken.balance)} {selectedToken.symbol}
                   {selectedToken.usdValue != null && ` · $${selectedToken.usdValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                 </p>
               </div>
-              <ChevronDown className={`h-5 w-5 text-slate-500 flex-shrink-0 transition-transform ${tokenSelectorOpen ? "rotate-180" : ""}`} aria-hidden />
+              <ChevronDown className="h-5 w-5 text-slate-500 flex-shrink-0" aria-hidden />
             </>
           ) : (
             <>
               <UsdcIcon size={32} className="flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-base font-semibold text-white">Select token</p>
-                <p className="text-sm text-slate-400">{sendableTokens.length === 0 ? "No sendable tokens" : "No tokens in portfolio"}</p>
+                <p className="text-sm text-slate-400">{sendableTokens.length === 0 ? "No sendable tokens" : "Tap to choose"}</p>
               </div>
               <ChevronDown className="h-5 w-5 text-slate-500 flex-shrink-0" aria-hidden />
             </>
           )}
         </button>
-        {tokenSelectorOpen && sendableTokens.length > 0 && (
-          <div className="mt-2 rounded-2xl bg-white/[0.06] overflow-hidden divide-y divide-white/[0.06] max-h-48 overflow-y-auto">
-            {sendableTokens.map((t) => (
-              <button
+      </div>
+
+      <Dialog
+        open={tokenSelectorOpen}
+        onClose={() => setTokenSelectorOpen(false)}
+        title="Select token"
+        sheetOnMobile
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Coins className="h-4 w-4 text-claw" />
+          <h2 className="text-sm font-semibold text-white tracking-wide">
+            <span className="text-claw">›</span> Tokens
+          </h2>
+        </div>
+        {sendableTokens.length === 0 ? (
+          <p className="text-sm text-slate-500 text-center py-8">No sendable tokens on BNB Chain</p>
+        ) : (
+          <div className="space-y-1 -mx-1">
+            {sendableTokens.map((t, i) => (
+              <TokenRow
                 key={t.id}
-                type="button"
+                token={t}
+                index={i}
+                selected={selectedToken?.id === t.id}
                 onClick={() => {
                   setSelectedToken(t);
                   setTokenSelectorOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.08] transition-colors"
-              >
-                <TokenOption token={t} selected={selectedToken?.id === t.id} />
-              </button>
+              />
             ))}
           </div>
         )}
-      </div>
+      </Dialog>
 
       {/* To - recipient with ENS/address */}
       <div>
