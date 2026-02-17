@@ -38,9 +38,9 @@ export default function LoginPage() {
         transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
         className="w-full max-w-md min-w-0"
       >
-        <Card className="overflow-hidden text-center">
+        <Card className="overflow-hidden text-center p-0">
           {/* Logo + copy */}
-          <div className="relative pt-8 pb-8 px-6 flex flex-col items-center">
+          <div className="relative p-6 flex flex-col items-center">
             <div className="absolute inset-0 bg-gradient-to-b from-claw/10 via-transparent to-transparent pointer-events-none" />
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
@@ -70,7 +70,7 @@ export default function LoginPage() {
           </div>
 
           {/* Login CTA */}
-          <div className="px-6 pb-8 pt-2 border-t border-white/[0.06]">
+          <div className="pb-6">
             <PrivyLoginButton />
           </div>
         </Card>
