@@ -14,6 +14,11 @@ export function getNotificationMessageId(txId: string): string | undefined {
   return notificationMessages.get(txId);
 }
 
+/** Normalize message for openclaw CLI: newlines in -m can cause exit code 1. */
+function normalizeMessageForCli(message: string): string {
+  return message.replace(/\n/g, " | ");
+}
+
 export function notifyTelegram(
   message: string,
   buttons?: InlineButton[][],
@@ -27,7 +32,7 @@ export function notifyTelegram(
     "--target",
     TELEGRAM_TARGET,
     "-m",
-    message,
+    normalizeMessageForCli(message),
   ];
 
   if (buttons) {
@@ -82,7 +87,7 @@ export function editNotification(txId: string, newMessage: string): void {
       "--message-id",
       messageId,
       "-m",
-      newMessage,
+      normalizeMessageForCli(newMessage),
     ],
     (err, stdout, stderr) => {
       if (err) {
