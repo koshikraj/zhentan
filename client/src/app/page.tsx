@@ -176,11 +176,11 @@ function Dashboard() {
         <WCTransactionRequest />
 
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden glass-card rounded-2xl">
-          <div className="flex-shrink-0 flex border-b border-white/[0.08] px-5 sm:px-8 pt-5 pb-0 gap-8">
+          <div className="flex-shrink-0 flex border-b border-white/[0.08] p-6 pb-0 gap-8">
             <button
               type="button"
               onClick={() => setListTab("tokens")}
-              className={`py-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 listTab === "tokens"
                   ? "text-claw border-claw"
                   : "text-slate-400 border-transparent hover:text-slate-300"
@@ -191,7 +191,7 @@ function Dashboard() {
             <button
               type="button"
               onClick={() => setListTab("activity")}
-              className={`py-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 listTab === "activity"
                   ? "text-claw border-claw"
                   : "text-slate-400 border-transparent hover:text-slate-300"

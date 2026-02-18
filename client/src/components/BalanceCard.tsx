@@ -70,20 +70,20 @@ export function BalanceCard({
 
   return (
     <motion.div
-      className="balance-card p-6 sm:p-8 text-left relative"
+      className="balance-card p-6 text-left relative"
       initial="hidden"
       animate="visible"
       variants={cardVariants}
     >
       {/* Top row: chip + greeting */}
       <div className="flex items-center justify-between mb-8">
-        <div className="balance-card-chip flex items-center justify-center overflow-hidden rounded-lg p-1" aria-hidden>
+        <div className="balance-card-chip flex items-center justify-center overflow-hidden rounded-lg p-1 aspect-square w-10 h-10" aria-hidden>
           <Image
             src="/bsc-yellow.png"
             alt=""
             width={28}
-            height={22}
-            className="object-contain opacity-95 drop-shadow-sm"
+            height={28}
+            className="object-contain opacity-95 drop-shadow-sm w-10 h-10"
             unoptimized
           />
         </div>

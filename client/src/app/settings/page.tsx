@@ -61,7 +61,7 @@ function SettingsPageContent() {
       <TopBar screeningMode={screeningMode} />
       <main className="flex-1 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
         <motion.div initial="hidden" animate="visible" variants={cardVariants}>
-          <Card>
+          <Card className="p-6">
             <h1 className="text-xl font-semibold text-white mb-6">
               <span className="text-claw">›</span> Settings
             </h1>

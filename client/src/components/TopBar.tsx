@@ -53,16 +53,15 @@ export function TopBar({ screeningMode }: TopBarProps) {
           className="flex items-center rounded-full py-1 min-w-0 flex-shrink-0"
           aria-label="Zhentan"
         >
-          <div className="relative w-[120px] h-9 sm:w-[200px] sm:h-14 rounded-xl overflow-hidden flex-shrink-0">
-            <Image
-              src="/logo.png"
-              alt="Zhentan"
-              fill
-              className="object-contain object-left"
-              sizes="200px"
-              priority
-            />
-          </div>
+
+          <Image
+            src="/logo.png"
+            alt="Zhentan"
+            width={176}
+            height={64}
+            priority
+          />
+
         </Link>
 
         {/* Center: Nav links */}
