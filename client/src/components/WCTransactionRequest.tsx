@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "./ui/Button";
@@ -10,6 +11,18 @@ import { truncateAddress, formatDate } from "@/lib/format";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 import { Shield, ExternalLink, CheckCircle2, XCircle, ArrowUpRight, Clock } from "lucide-react";
 import { formatEther } from "viem";
+import type { DappMetadata } from "@/types";
+
+type TxParams = { to?: string; value?: string; data?: string };
+
+function formatValue(value: string | undefined): string {
+  if (!value || value === "0x0" || value === "0" || value === "0x") return "0";
+  try {
+    return formatEther(BigInt(value));
+  } catch {
+    return "0";
+  }
+}
 
 export function WCTransactionRequest() {
   const {
@@ -27,20 +40,34 @@ export function WCTransactionRequest() {
   if (!isOpen) return null;
 
   const txParams = pendingRequest
-    ? (pendingRequest.params as Array<{
-        to?: string;
-        value?: string;
-        data?: string;
-      }>)[0]
+    ? (pendingRequest.params as Array<TxParams>)[0]
     : null;
 
-  const dapp = pendingRequest?.dappMetadata;
-  const toAddress = txParams?.to ?? "";
-  const hasValue = txParams?.value && txParams.value !== "0x0" && txParams.value !== "0" && txParams.value !== "0x";
-  const valueFormatted = hasValue ? formatEther(BigInt(txParams!.value!)) : "0";
-  const calldataDisplay = txParams?.data && txParams.data !== "0x"
-    ? `${txParams.data.slice(0, 10)}...${txParams.data.slice(-8)}`
-    : "No calldata";
+  const lastParamsRef = useRef<{
+    to: string;
+    valueFormatted: string;
+    calldataDisplay: string;
+    dappMetadata?: DappMetadata;
+  } | null>(null);
+  if (txParams) {
+    const to = txParams.to ?? "";
+    const valueFormatted = formatValue(txParams.value);
+    const calldataDisplay = txParams.data && txParams.data !== "0x"
+      ? `${txParams.data.slice(0, 10)}...${txParams.data.slice(-8)}`
+      : "No calldata";
+    lastParamsRef.current = { to, valueFormatted, calldataDisplay, dappMetadata: pendingRequest?.dappMetadata };
+  }
+  useEffect(() => {
+    if (requestStatus === "idle" && !pendingRequest) lastParamsRef.current = null;
+  }, [requestStatus, pendingRequest]);
+
+  const dapp = pendingRequest?.dappMetadata ?? lastParamsRef.current?.dappMetadata;
+  const display = lastParamsRef.current;
+  const toAddress = txParams?.to ?? display?.to ?? "";
+  const valueFormatted = txParams ? formatValue(txParams.value) : (display?.valueFormatted ?? "0");
+  const calldataDisplay = txParams
+    ? (txParams.data && txParams.data !== "0x" ? `${txParams.data.slice(0, 10)}...${txParams.data.slice(-8)}` : "No calldata")
+    : (display?.calldataDisplay ?? "No calldata");
 
   const handleClose = () => {
     if (requestStatus === "signing" || requestStatus === "polling") return;

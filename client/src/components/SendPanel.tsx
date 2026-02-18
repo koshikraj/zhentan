@@ -42,6 +42,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     token: string;
     txHash: string;
     executedAt: string;
+    tokenIconUrl?: string | null;
   } | null>(null);
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
   // Include ERC20 and native token (BNB); native has zero address in portfolio
@@ -162,6 +163,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           token: data.token ?? "USDC",
           txHash: data.txHash ?? "",
           executedAt: new Date().toISOString(),
+          tokenIconUrl: selectedToken?.iconUrl ?? undefined,
         });
         setSendPhase("success");
       } else {
@@ -175,6 +177,24 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
       setLoading(false);
     }
   };
+
+  function TokenIcon({ token, iconUrl }: { token: string; iconUrl?: string | null }) {
+    if (iconUrl) {
+      return (
+        <span className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+          <Image src={iconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
+        </span>
+      );
+    }
+    if (token === "BNB") {
+      return (
+        <span className="relative w-8 h-8 flex-shrink-0 flex items-center justify-center">
+          <Image src="/bsc-yellow.png" alt="" width={32} height={32} className="object-contain" />
+        </span>
+      );
+    }
+    return <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />;
+  }
 
   const canSubmit = resolvedAddress || (recipient.startsWith("0x") && recipient.length === 42);
   const submitLabel = canSubmit
@@ -197,7 +217,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
             <ArrowUpRight className="h-5 w-5" />
           </div>
-          <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
           <span className="text-lg font-semibold text-white">{amount} {selectedToken?.symbol ?? "USDC"}</span>
         </div>
         <dl className="space-y-3 text-sm">
@@ -241,7 +261,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
             <ArrowUpRight className="h-5 w-5" />
           </div>
-          <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          <TokenIcon token={tx.token} iconUrl={tx.tokenIconUrl} />
           <span className="text-lg font-semibold text-white">{tx.amount} {tx.token}</span>
         </div>
         <dl className="space-y-3 text-sm">
@@ -295,7 +315,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
             <ArrowUpRight className="h-5 w-5" />
           </div>
-          <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
           <span className="text-lg font-semibold text-white">
             {amount} {selectedToken?.symbol ?? "USDC"}
           </span>
@@ -337,7 +357,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
             <ArrowUpRight className="h-5 w-5" />
           </div>
-          <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          <TokenIcon token={token} iconUrl={executedResult.tokenIconUrl} />
           <span className="text-lg font-semibold text-white">{amt} {token}</span>
         </div>
         <dl className="space-y-3 text-sm">

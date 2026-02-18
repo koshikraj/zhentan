@@ -137,7 +137,17 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
           <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
             <DirectionIcon className="h-5 w-5" />
           </div>
-          <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          {tx.tokenIconUrl ? (
+            <span className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+              <Image src={tx.tokenIconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
+            </span>
+          ) : tx.token === "BNB" ? (
+            <span className="relative w-8 h-8 flex-shrink-0 flex items-center justify-center">
+              <Image src="/bsc-yellow.png" alt="" width={32} height={32} className="object-contain" />
+            </span>
+          ) : (
+            <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />
+          )}
           <span className="text-lg font-semibold text-white">
             {tx.amount} {tx.token}
           </span>
