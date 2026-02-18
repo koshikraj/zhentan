@@ -50,7 +50,7 @@ export function TopBar({ screeningMode }: TopBarProps) {
         {/* Left: Logo + brand */}
         <Link
           href="/"
-          className="flex items-center rounded-full py-1 min-w-0 flex-shrink-0"
+          className="flex items-center rounded-full py-1 min-w-0 flex-shrink-0 h-16 lg:h-24 aspect-video"
           aria-label="Zhentan"
         >
 
@@ -59,13 +59,15 @@ export function TopBar({ screeningMode }: TopBarProps) {
             alt="Zhentan"
             width={176}
             height={64}
+            className="object-contain"
             priority
           />
 
         </Link>
 
-        {/* Center: Nav links */}
-        <nav className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-white/[0.04] p-0.5 sm:p-1 border border-white/5 overflow-x-auto scrollbar-hide min-w-0 flex-1 justify-end sm:justify-center sm:flex-initial">
+     <div className="flex-1 flex justify-center items-center">
+         {/* Center: Nav links */}
+         <nav className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-white/[0.04] p-0.5 sm:p-1 w-fit border border-white/5 overflow-x-auto scrollbar-hide min-w-0 justify-end sm:justify-center sm:flex-initial">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -91,6 +93,7 @@ export function TopBar({ screeningMode }: TopBarProps) {
           })}
         </nav>
 
+     </div>
         {/* Right: Screening pill */}
         <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-white/10 bg-white/[0.04] px-2 sm:px-3 py-1.5 sm:py-2 flex-shrink-0">
           <div
