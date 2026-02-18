@@ -69,20 +69,50 @@ export function TransactionRow({ tx, index = 0, onClick }: TransactionRowProps) 
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-medium text-slate-200 truncate inline-flex items-center gap-1.5">
-            {showUsdcIcon ? (
-              <UsdcIcon size={16} className="flex-shrink-0 opacity-90" />
-            ) : (
-              <TokenIcon symbol={tx.token} iconUrl={tx.tokenIconUrl} size={16} />
-            )}
-            {tx.amount} {tx.token}
-          </span>
-          <span className="text-slate-600 shrink-0">{isReceive ? "←" : "→"}</span>
-          <span className="text-sm text-slate-400 font-mono truncate min-w-0">
-            {truncateAddress(tx.to)}
-          </span>
+          {tx.dappMetadata ? (
+            <span className="text-sm font-medium text-slate-200 truncate inline-flex items-center gap-1.5">
+              {tx.dappMetadata.icons?.[0] ? (
+                <img
+                  src={tx.dappMetadata.icons[0]}
+                  alt=""
+                  className="w-4 h-4 rounded flex-shrink-0 bg-white/10 object-cover"
+                />
+              ) : (
+                <span className="w-4 h-4 rounded bg-white/10 flex-shrink-0 flex items-center justify-center">
+                  <ArrowUpRight className="h-2.5 w-2.5 text-slate-400" />
+                </span>
+              )}
+              <span className="truncate">
+                {tx.dappMetadata.name.length > 20
+                  ? `${tx.dappMetadata.name.slice(0, 20)}…`
+                  : tx.dappMetadata.name}
+              </span>
+            </span>
+          ) : (
+            <span className="text-sm font-medium text-slate-200 truncate inline-flex items-center gap-1.5">
+              {showUsdcIcon ? (
+                <UsdcIcon size={16} className="flex-shrink-0 opacity-90" />
+              ) : (
+                <TokenIcon symbol={tx.token} iconUrl={tx.tokenIconUrl} size={16} />
+              )}
+              {tx.amount} {tx.token}
+            </span>
+          )}
+          {!tx.dappMetadata && (
+            <>
+              <span className="text-slate-600 shrink-0">{isReceive ? "←" : "→"}</span>
+              <span className="text-sm text-slate-400 font-mono truncate min-w-0">
+                {truncateAddress(tx.to)}
+              </span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-wrap mt-0.5">
+          {tx.dappMetadata && (
+            <span className="text-xs text-slate-500">
+              {tx.amount} {tx.token}
+            </span>
+          )}
           <span className="text-xs text-slate-500">
             {formatDate(tx.proposedAt)}
           </span>

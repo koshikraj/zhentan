@@ -1,18 +1,104 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { TransactionWithStatus } from "@/types";
 import { truncateAddress, formatDate, statusLabel } from "@/lib/format";
 import { Dialog } from "./ui/Dialog";
 import { UsdcIcon } from "./icons/UsdcIcon";
-import { ArrowUpRight, ArrowDownLeft, Clock, Search, XCircle, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Search, XCircle, ExternalLink, ChevronDown, ChevronUp, ShieldAlert } from "lucide-react";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 
 interface TransactionDetailDialogProps {
   tx: TransactionWithStatus | null;
   open: boolean;
   onClose: () => void;
+}
+
+function RiskDetailsSection({
+  riskScore,
+  riskVerdict,
+  riskReasons,
+}: {
+  riskScore?: number;
+  riskVerdict?: "APPROVE" | "REVIEW" | "BLOCK";
+  riskReasons?: string[];
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const reasonCount = riskReasons?.length ?? 0;
+  const summary =
+    riskScore != null
+      ? reasonCount > 0
+        ? `Risk: ${riskScore} — ${reasonCount} reason${reasonCount === 1 ? "" : "s"}`
+        : `Risk score: ${riskScore}`
+      : reasonCount > 0
+        ? `${reasonCount} risk reason${reasonCount === 1 ? "" : "s"}`
+        : "Risk details";
+
+  return (
+    <div className="rounded-2xl bg-white/[0.06] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-white/[0.06] transition-colors"
+      >
+        <ShieldAlert className="h-4 w-4 text-amber-400/90 flex-shrink-0" />
+        <span className="text-sm font-medium text-slate-200 flex-1">{summary}</span>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-slate-500 flex-shrink-0" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-slate-500 flex-shrink-0" />
+        )}
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-white/10"
+          >
+            <div className="px-4 py-3 space-y-2 text-sm">
+              {riskScore != null && (
+                <div className="flex justify-between gap-2">
+                  <span className="text-slate-500">Score</span>
+                  <span className="text-slate-200 font-medium">{riskScore}/100</span>
+                </div>
+              )}
+              {riskVerdict && (
+                <div className="flex justify-between gap-2">
+                  <span className="text-slate-500">Verdict</span>
+                  <span
+                    className={`font-medium ${
+                      riskVerdict === "APPROVE"
+                        ? "text-emerald-400"
+                        : riskVerdict === "BLOCK"
+                          ? "text-red-400"
+                          : "text-amber-400"
+                    }`}
+                  >
+                    {riskVerdict}
+                  </span>
+                </div>
+              )}
+              {riskReasons && riskReasons.length > 0 && (
+                <div>
+                  <span className="text-slate-500 block mb-1">Reasons</span>
+                  <ul className="list-disc list-inside space-y-0.5 text-slate-300">
+                    {riskReasons.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function StatusAnimation({ status }: { status: TransactionWithStatus["status"] }) {
@@ -201,6 +287,16 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
             </div>
           )}
         </dl>
+
+        {/* Risk details (when in review and risk data present) */}
+        {(tx.inReview || tx.status === "in_review") &&
+          (tx.riskScore != null || (tx.riskReasons && tx.riskReasons.length > 0)) && (
+          <RiskDetailsSection
+            riskScore={tx.riskScore}
+            riskVerdict={tx.riskVerdict}
+            riskReasons={tx.riskReasons}
+          />
+        )}
 
         {/* Explorer link */}
         {explorerTxUrl && (

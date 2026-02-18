@@ -45,6 +45,10 @@ export interface PendingTransaction {
   inReview?: boolean;
   reviewReason?: string;
   reviewedAt?: string;
+  // Risk (from server screening)
+  riskScore?: number;
+  riskVerdict?: "APPROVE" | "REVIEW" | "BLOCK";
+  riskReasons?: string[];
   // Rejection
   rejected?: boolean;
   rejectedAt?: string;
