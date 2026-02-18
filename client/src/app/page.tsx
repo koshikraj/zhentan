@@ -292,7 +292,6 @@ function ArchitectureDiagram() {
         {/* ── Flowing data-packet dots ──────────────────────────────── */}
         {inView && PATHS.map((p) => (
           <circle key={`dot-${p.id}`} r="3.5" fill={p.color} opacity="0.9">
-            {/* @ts-expect-error – SVG animation element */}
             <animateMotion dur={p.dur} repeatCount="indefinite" begin={p.begin}>
               <mpath href={`#${p.id}`} />
             </animateMotion>
