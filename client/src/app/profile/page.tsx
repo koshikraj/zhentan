@@ -186,7 +186,7 @@ function ProfilePageContent() {
                       )}
                     </button>
                     <a
-                      href={`https://app.safe.global/home?safe=bsc:${safeAddress}`}
+                      href={`https://app.safe.global/home?safe=bnb:${safeAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-1.5 rounded-lg hover:bg-white/[0.08] text-slate-500 hover:text-white transition-all"

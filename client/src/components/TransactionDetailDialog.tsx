@@ -6,7 +6,7 @@ import type { TransactionWithStatus } from "@/types";
 import { truncateAddress, formatDate, statusLabel } from "@/lib/format";
 import { Dialog } from "./ui/Dialog";
 import { UsdcIcon } from "./icons/UsdcIcon";
-import { ArrowUpRight, ArrowDownLeft, Clock, Search, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Search, XCircle, ExternalLink } from "lucide-react";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 
 interface TransactionDetailDialogProps {
@@ -63,7 +63,7 @@ function StatusAnimation({ status }: { status: TransactionWithStatus["status"] }
     case "executed":
       return (
         <motion.div
-          className={`${size} ${common} bg-claw/20 text-claw`}
+          className={`${size} ${common} bg-emerald-500/20 text-claw`}
           initial={{ scale: 0, opacity: 0 }}
           animate={{
             scale: [0, 1.2, 1],
@@ -77,7 +77,9 @@ function StatusAnimation({ status }: { status: TransactionWithStatus["status"] }
             },
           }}
         >
-          <CheckCircle2 className="h-10 w-10" />
+          <span className="relative w-12 h-12 flex items-center justify-center">
+            <Image src="/bsc-yellow.png" alt="BNB Chain" width={48} height={48} className="object-contain" />
+          </span>
         </motion.div>
       );
     case "rejected":

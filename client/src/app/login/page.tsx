@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user && wallet) {
-      router.replace("/");
+      router.replace("/app");
     }
   }, [loading, user, wallet, router]);
 
