@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useLinkAccount, usePrivy } from "@privy-io/react-auth";
 import { TopBar } from "@/components/TopBar";
 import { Card } from "@/components/ui/Card";
 import { AuthGuard } from "@/components/AuthGuard";
-import { ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
+import { ShieldCheck, ShieldOff, Loader2, MessageCircle } from "lucide-react";
 import { getBackendApiUrl } from "@/lib/api";
 
 const cardVariants = {
@@ -26,16 +28,47 @@ function SettingsPageContent() {
   const [screeningMode, setScreeningMode] = useState(true);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [linkingTelegram, setLinkingTelegram] = useState(false);
+  const { telegramUserId, privyUser, safeAddress } = useAuth();
+  const { unlinkTelegram } = usePrivy();
+
+  const { linkTelegram } = useLinkAccount({
+    onSuccess: ({ linkedAccount, linkMethod }) => {
+      if (linkMethod === "telegram") {
+        const acc = linkedAccount as unknown as Record<string, unknown>;
+        const tgUserId = (acc?.telegramUserId as string) || (acc?.username as string) || (acc?.subject as string);
+        if (tgUserId) {
+          setTelegramLinked(true);
+          // Save to backend
+          fetch(getBackendApiUrl("status"), {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ safe: safeAddress, telegramChatId: String(tgUserId) }),
+          }).catch(() => {});
+        }
+      }
+      setLinkingTelegram(false);
+    },
+    onError: () => {
+      setLinkingTelegram(false);
+    },
+  });
 
   useEffect(() => {
-    fetch(getBackendApiUrl("status"))
+    if (telegramUserId) setTelegramLinked(true);
+  }, [telegramUserId]);
+
+  useEffect(() => {
+    if (!safeAddress) return;
+    fetch(`${getBackendApiUrl("status")}?safe=${encodeURIComponent(safeAddress)}`)
       .then((res) => res.json())
       .then((data) => {
         setScreeningMode(data.screeningMode ?? true);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [safeAddress]);
 
   const handleToggle = async () => {
     setToggling(true);
@@ -43,7 +76,7 @@ function SettingsPageContent() {
       const res = await fetch(getBackendApiUrl("status"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ screeningMode: !screeningMode }),
+        body: JSON.stringify({ safe: safeAddress, screeningMode: !screeningMode }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -133,6 +166,88 @@ function SettingsPageContent() {
                     </p>
                   </motion.div>
                 )}
+
+                {/* Telegram Notifications */}
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="h-5 w-5 text-blue-400" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-white">
+                        Telegram Notifications
+                      </h3>
+                      {telegramLinked ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const tgAccount = (privyUser?.linkedAccounts as unknown as Array<Record<string, unknown>>)?.find(
+                                (a) => a.type === "telegram"
+                              );
+                              if (tgAccount) {
+                                const identifier =
+                                  (tgAccount.subject as string) ||
+                                  (tgAccount.telegramUserId as string) ||
+                                  (tgAccount.username as string);
+                                if (identifier) {
+                                  await (unlinkTelegram as unknown as (id: string) => Promise<unknown>)(identifier);
+                                }
+                              }
+                              setTelegramLinked(false);
+                              // Clear from backend
+                              await fetch(getBackendApiUrl("status"), {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ safe: safeAddress, telegramChatId: "" }),
+                              });
+                            } catch { /* ignore */ }
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
+                        >
+                          Unlink
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setLinkingTelegram(true);
+                            linkTelegram();
+                          }}
+                          disabled={linkingTelegram}
+                          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+                        >
+                          {linkingTelegram ? (
+                            <Loader2 className="h-3 w-3 animate-spin inline mr-1" />
+                          ) : null}
+                          Link Telegram
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-400 mt-1">
+                      {telegramLinked ? (
+                        <span className="text-blue-400 font-medium">Linked</span>
+                      ) : (
+                        <>
+                          Message{" "}
+                          <a
+                            href="https://t.me/kos_claw_bot"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 underline hover:text-blue-300"
+                          >
+                            @kos_claw_bot
+                          </a>{" "}
+                          on Telegram first, then link your account here.
+                        </>
+                      )}
+                    </p>
+                    {!telegramLinked && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        This is a public OpenClaw bot on a basic plan.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
           </Card>

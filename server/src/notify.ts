@@ -19,10 +19,11 @@ export function getNotificationMessageId(txId: string): string | undefined {
 export function notifyTelegram(
   message: string,
   buttons?: InlineButton[][],
-  txId?: string
+  txId?: string,
+  chatId?: string
 ): void {
   const body: Record<string, unknown> = {
-    chat_id: TELEGRAM_CHAT_ID,
+    chat_id: chatId || TELEGRAM_CHAT_ID,
     text: message,
     parse_mode: "Markdown",
   };
@@ -55,7 +56,7 @@ export function notifyTelegram(
     });
 }
 
-export function editNotification(txId: string, newMessage: string): void {
+export function editNotification(txId: string, newMessage: string, chatId?: string): void {
   const messageId = notificationMessages.get(txId);
   if (messageId == null) {
     console.warn(`No notification message found for ${txId}`);
@@ -66,7 +67,7 @@ export function editNotification(txId: string, newMessage: string): void {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
+      chat_id: chatId || TELEGRAM_CHAT_ID,
       message_id: messageId,
       text: newMessage,
       parse_mode: "Markdown",

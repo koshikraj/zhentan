@@ -61,15 +61,15 @@ curl -s -X POST http://localhost:3001/notify-resolve -H 'Content-Type: applicati
 Confirm the rejection to the owner.
 
 ### get-status
-Get current screening mode and recent decisions.
+Get current screening mode and recent decisions. Optionally pass a Safe address to get status for a specific user.
 ```bash
-node skills/zhentan/get-status.js
+node skills/zhentan/get-status.js [safeAddress]
 ```
 
 ### toggle-screening
-When the owner says "screening on" or "screening off":
+When the owner says "screening on" or "screening off". Optionally pass a Safe address to toggle for a specific user (omit to toggle for all users).
 ```bash
-node skills/zhentan/toggle-screening.js <on|off>
+node skills/zhentan/toggle-screening.js <on|off> [safeAddress]
 ```
 
 ## When user asks for deeper analysis

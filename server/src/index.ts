@@ -9,6 +9,7 @@ import { createPortfolioRouter } from "./routes/portfolio.js";
 import { createStatusRouter } from "./routes/status.js";
 import { createResolveRouter } from "./routes/resolve.js";
 import { editNotification } from "./notify.js";
+import { readState } from "./routes/status.js";
 
 const app = express();
 
@@ -34,7 +35,7 @@ app.use("/status", createStatusRouter(getStatePath, getPatternsPath));
 app.use("/resolve", createResolveRouter());
 
 app.post("/notify-resolve", (req, res) => {
-  const { txId, action, txHash } = req.body ?? {};
+  const { txId, action, txHash, safeAddress } = req.body ?? {};
   if (!txId || !action) {
     res.status(400).json({ error: "Missing txId or action" });
     return;
@@ -50,7 +51,22 @@ app.post("/notify-resolve", (req, res) => {
     message = `${action} — ${txId}`;
   }
 
-  editNotification(txId, message);
+  let chatId: string | undefined;
+  try {
+    const statePath = process.env.STATE_PATH;
+    if (statePath) {
+      const state = readState(statePath);
+      if (safeAddress) {
+        chatId = state.users[safeAddress.toLowerCase()]?.telegramChatId;
+      } else {
+        // Fallback: use the first user's chatId
+        const firstUser = Object.values(state.users)[0];
+        chatId = firstUser?.telegramChatId;
+      }
+    }
+  } catch { /* ignore */ }
+
+  editNotification(txId, message, chatId);
   res.json({ ok: true });
 });
 

@@ -19,6 +19,7 @@ export interface AuthUser {
   email?: string;
   name?: string;
   image?: string;
+  telegramUserId?: string;
 }
 
 export interface AuthWallet {
@@ -37,6 +38,10 @@ export interface AuthContextType {
   safeAddress: string | null;
   /** Whether the Safe address is still being computed */
   safeLoading: boolean;
+  /** Telegram user ID from linked account */
+  telegramUserId?: string;
+  /** Raw Privy user for accessing linkedAccounts */
+  privyUser: ReturnType<typeof usePrivy>["user"];
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -70,6 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [primaryWallet]);
 
+  const telegramUserId = useMemo(() => {
+    if (!privyUser?.linkedAccounts) return undefined;
+    const tg = privyUser.linkedAccounts.find((a) => a.type === "telegram");
+    return tg && "telegramUserId" in tg ? String(tg.telegramUserId) : undefined;
+  }, [privyUser]);
+
   const user: AuthUser | null = useMemo(() => {
     if (!privyUser) return null;
     const google = (privyUser as { google?: { email?: string; name?: string; picture?: string } }).google;
@@ -78,8 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: google?.email,
       name: google?.name,
       image: google?.picture,
+      telegramUserId,
     };
-  }, [privyUser]);
+  }, [privyUser, telegramUserId]);
 
   const wallet: AuthWallet | null = useMemo(() => {
     if (!primaryWallet?.address) return null;
@@ -126,8 +138,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getOwnerAccount,
       safeAddress,
       safeLoading,
+      telegramUserId,
+      privyUser: privyUser ?? null,
     }),
-    [user, wallet, loading, login, logout, getOwnerAccount, safeAddress, safeLoading]
+    [user, wallet, loading, login, logout, getOwnerAccount, safeAddress, safeLoading, telegramUserId, privyUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

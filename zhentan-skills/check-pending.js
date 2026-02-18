@@ -5,15 +5,32 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 try {
-  const state = JSON.parse(readFileSync(join(__dirname, 'state.json'), 'utf8'));
+  const raw = JSON.parse(readFileSync(join(__dirname, 'state.json'), 'utf8'));
+  const state = raw.users ? raw : { users: { default: raw } };
 
-  if (!state.screeningMode) {
+  const safeArg = process.argv[2]?.toLowerCase();
+
+  // Check if any user (or a specific user) has screening on
+  let screeningOn = false;
+  if (safeArg) {
+    const userState = state.users[safeArg];
+    screeningOn = userState?.screeningMode ?? false;
+  } else {
+    screeningOn = Object.values(state.users).some(u => u.screeningMode);
+  }
+
+  if (!screeningOn) {
     console.log(JSON.stringify({ status: 'screening_off', message: 'Screening mode is OFF. Skipping check.' }));
     process.exit(0);
   }
 
   const queue = JSON.parse(readFileSync(join(__dirname, 'pending-queue.json'), 'utf8'));
-  const pending = queue.pending.filter(tx => !tx.executedAt && !tx.inReview && !tx.rejected);
+  let pending = queue.pending.filter(tx => !tx.executedAt && !tx.inReview && !tx.rejected);
+
+  // If a specific safe was requested, filter to that safe's transactions
+  if (safeArg) {
+    pending = pending.filter(tx => tx.safeAddress?.toLowerCase() === safeArg);
+  }
 
   if (pending.length === 0) {
     console.log(JSON.stringify({ status: 'empty', message: 'No pending transactions.' }));

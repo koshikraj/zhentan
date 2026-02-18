@@ -1,10 +1,15 @@
 import { Router, Request, Response } from "express";
 import { readFileSync, writeFileSync } from "fs";
 
-interface StateFile {
+interface UserState {
   screeningMode: boolean;
   lastCheck: string | null;
   decisions: unknown[];
+  telegramChatId?: string;
+}
+
+interface StateFile {
+  users: Record<string, UserState>;
 }
 
 interface PatternsFile {
@@ -17,13 +22,51 @@ interface PatternsFile {
   };
 }
 
+const DEFAULT_USER_STATE: UserState = {
+  screeningMode: false,
+  lastCheck: null,
+  decisions: [],
+};
+
+export function readState(statePath: string): StateFile {
+  try {
+    const raw = JSON.parse(readFileSync(statePath, "utf8"));
+    // Auto-migrate: old flat format has screeningMode at top level
+    if ("screeningMode" in raw && !("users" in raw)) {
+      const migrated: StateFile = {
+        users: {
+          default: {
+            screeningMode: raw.screeningMode ?? false,
+            lastCheck: raw.lastCheck ?? null,
+            decisions: raw.decisions ?? [],
+            telegramChatId: raw.telegramChatId,
+          },
+        },
+      };
+      writeFileSync(statePath, JSON.stringify(migrated, null, 2));
+      return migrated;
+    }
+    return raw as StateFile;
+  } catch {
+    return { users: {} };
+  }
+}
+
+export function writeState(statePath: string, state: StateFile): void {
+  writeFileSync(statePath, JSON.stringify(state, null, 2));
+}
+
+function getUserState(state: StateFile, safe: string): UserState {
+  return state.users[safe.toLowerCase()] ?? { ...DEFAULT_USER_STATE };
+}
+
 export function createStatusRouter(
   getStatePath: () => string | undefined,
   getPatternsPath: () => string | undefined
 ) {
   const router = Router();
 
-  router.get("/", (_req: Request, res: Response) => {
+  router.get("/", (req: Request, res: Response) => {
     try {
       const statePath = getStatePath();
       const patternsPath = getPatternsPath();
@@ -32,12 +75,14 @@ export function createStatusRouter(
         return;
       }
 
-      let state: StateFile;
-      try {
-        state = JSON.parse(readFileSync(statePath, "utf8"));
-      } catch {
-        state = { screeningMode: false, lastCheck: null, decisions: [] };
+      const safe = req.query.safe as string | undefined;
+      if (!safe) {
+        res.status(400).json({ error: "Missing required query param: safe" });
+        return;
       }
+
+      const state = readState(statePath);
+      const userState = getUserState(state, safe);
 
       let patterns: PatternsFile;
       try {
@@ -55,9 +100,10 @@ export function createStatusRouter(
       }
 
       res.json({
-        screeningMode: state.screeningMode,
-        lastCheck: state.lastCheck,
-        totalDecisions: state.decisions.length,
+        screeningMode: userState.screeningMode,
+        lastCheck: userState.lastCheck,
+        totalDecisions: userState.decisions.length,
+        telegramChatId: userState.telegramChatId,
         patterns,
       });
     } catch (err) {
@@ -74,22 +120,42 @@ export function createStatusRouter(
         return;
       }
 
-      if (typeof req.body.screeningMode !== "boolean") {
+      const { safe, screeningMode, telegramChatId } = req.body;
+
+      if (!safe) {
+        res.status(400).json({ error: "Missing required field: safe" });
+        return;
+      }
+
+      if (screeningMode === undefined && telegramChatId === undefined) {
+        res.status(400).json({ error: "No valid fields to update" });
+        return;
+      }
+
+      if (screeningMode !== undefined && typeof screeningMode !== "boolean") {
         res.status(400).json({ error: "screeningMode must be a boolean" });
         return;
       }
 
-      let state: StateFile;
-      try {
-        state = JSON.parse(readFileSync(statePath, "utf8"));
-      } catch {
-        state = { screeningMode: false, lastCheck: null, decisions: [] };
+      if (telegramChatId !== undefined && typeof telegramChatId !== "string") {
+        res.status(400).json({ error: "telegramChatId must be a string" });
+        return;
       }
 
-      state.screeningMode = req.body.screeningMode;
-      writeFileSync(statePath, JSON.stringify(state, null, 2));
+      const state = readState(statePath);
+      const key = safe.toLowerCase();
+      if (!state.users[key]) {
+        state.users[key] = { ...DEFAULT_USER_STATE };
+      }
 
-      res.json({ screeningMode: state.screeningMode });
+      if (screeningMode !== undefined) state.users[key].screeningMode = screeningMode;
+      if (telegramChatId !== undefined) state.users[key].telegramChatId = telegramChatId || undefined;
+      writeState(statePath, state);
+
+      res.json({
+        screeningMode: state.users[key].screeningMode,
+        telegramChatId: state.users[key].telegramChatId,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       res.status(500).json({ error: message });
