@@ -51,7 +51,7 @@ export function InvoiceList({
   if (!loading && invoices.length === 0) return null;
 
   return (
-    <Card>
+    <Card className="p-6">
       <motion.div
         className="flex items-center gap-2 mb-4"
         initial="hidden"

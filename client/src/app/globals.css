@@ -59,11 +59,29 @@
 @layer components {
   /* Neobank-style surface: no borders, soft elevation */
   .glass-card {
-    @apply rounded-2xl bg-white/[0.06] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.24)];
+    @apply rounded-2xl bg-white/[0.06] relative overflow-hidden;
+    box-shadow:
+      0 0 0 1px rgba(240, 185, 11, 0.12),
+      0 12px 40px -12px rgba(240, 185, 11, 0.08);
+  }
+
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(240, 185, 11, 0.4), transparent);
+    pointer-events: none;
+    z-index: 1;
   }
 
   .glass-card:hover {
-    @apply bg-white/[0.08] shadow-[0_8px_32px_-4px_rgba(0,0,0,0.28)];
+    @apply bg-white/[0.08];
+    box-shadow:
+      0 0 0 1px rgba(240, 185, 11, 0.18),
+      0 12px 40px -12px rgba(240, 185, 11, 0.12);
   }
 
   .gradient-text {
