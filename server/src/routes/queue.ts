@@ -178,6 +178,9 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
           { text: "✅ Approve", callback_data: `approve ${pendingTx.id}` },
           { text: "❌ Reject", callback_data: `reject ${pendingTx.id}` },
         ],
+        [
+          { text: "🔎 Deep Analyze", callback_data: `deep-analyze ${pendingTx.id}` },
+        ],
       ];
 
       if (risk.verdict === "REVIEW") {

@@ -32,33 +32,39 @@ Your role is **conversational** — the server handles the deterministic pipelin
 
 ## Owner commands (via Telegram)
 
+**CRITICAL RULE: For ALL commands below — EXECUTE the scripts IMMEDIATELY. Do NOT describe what you plan to do. Do NOT say "I'm running..." or "Let me...". Just run the command, wait for the result, then reply with the actual outcome.**
+
 ### approve
-When the owner says "approve tx-XXX", IMMEDIATELY run the scripts below — do NOT read or check the queue file yourself, the scripts handle all validation:
+When the owner says "approve tx-XXX" or taps the ✅ Approve button:
+
+1. IMMEDIATELY run (no preamble):
 ```bash
 node skills/zhentan/sign-and-execute.js tx-XXX
 ```
-Then if successful:
+2. WAIT for the output. If successful, run:
 ```bash
 node skills/zhentan/record-pattern.js tx-XXX
 ```
-The tx-id includes the "tx-" prefix (e.g. `tx-cc34ee59`). Pass it exactly as the user wrote it.
-After execution, update the Telegram notification by running:
+3. Update the Telegram notification:
 ```bash
 curl -s -X POST http://localhost:3001/notify-resolve -H 'Content-Type: application/json' -d '{"txId":"tx-XXX","action":"approved","txHash":"THE_TX_HASH"}'
 ```
-Then confirm to the owner with the tx hash from the script output.
+4. Reply with the actual tx hash from the script output.
+
+The tx-id includes the "tx-" prefix (e.g. `tx-cc34ee59`). Pass it exactly as the user wrote it.
 
 ### reject
-When the owner says "reject tx-XXX" or "reject tx-XXX <reason>", IMMEDIATELY run:
+When the owner says "reject tx-XXX" or taps the ❌ Reject button:
+
+1. IMMEDIATELY run (no preamble):
 ```bash
 node skills/zhentan/reject-tx.js tx-XXX [reason]
 ```
-Do NOT read the queue file yourself. The script handles validation.
-After rejection, update the Telegram notification by running:
+2. Update the Telegram notification:
 ```bash
 curl -s -X POST http://localhost:3001/notify-resolve -H 'Content-Type: application/json' -d '{"txId":"tx-XXX","action":"rejected"}'
 ```
-Confirm the rejection to the owner.
+3. Reply confirming the rejection with actual script output.
 
 ### get-status
 Get current screening mode and recent decisions. Optionally pass a Safe address to get status for a specific user.
@@ -74,16 +80,22 @@ node skills/zhentan/toggle-screening.js <on|off> [safeAddress]
 
 ## When user asks for deeper analysis
 
-If the owner asks for more detail about a transaction (e.g. "analyze tx-XXX", "why was this flagged?", "is this safe?", "check tx-XXX"), run the deep analysis script:
+**CRITICAL: Do NOT describe what you plan to do. Do NOT say "I'm running..." or "hang tight". IMMEDIATELY execute the script below, WAIT for it to finish, then reply with the ACTUAL results.**
+
+When the owner taps the "🔎 Deep Analyze" button or asks for detail about a transaction (e.g. "analyze tx-XXX", "why was this flagged?", "is this safe?", "check tx-XXX"):
+
+1. IMMEDIATELY run (do not explain first, just run it):
 ```bash
 node skills/zhentan/deep-analyze.js <tx-id>
 ```
-This calls external security APIs (GoPlus, Honeypot.is) to check:
-- **Recipient address reputation** — scam, phishing, sanctions, money laundering flags
-- **Token security** — honeypot, mintable, blacklist, hidden owner, tax rates
-- **Honeypot simulation** — simulates buy/sell to detect honeypots (non-stablecoins only)
+2. WAIT for the script output (it takes 5-15 seconds to call external APIs)
+3. Parse the JSON output and present the ACTUAL findings to the owner:
+   - Recipient address reputation — any scam, phishing, sanctions, or money laundering flags
+   - Token security — honeypot, mintable, blacklist, hidden owner, tax rates
+   - Honeypot simulation results (non-stablecoins only)
+4. Highlight any red flags prominently. If all clear, reassure the owner.
 
-Present the findings in plain language. Highlight any red flags prominently. If all clear, reassure the owner.
+**Do NOT reply until you have the script output. Never narrate your intent — only report actual results.**
 
 For a quick internal risk score (patterns-based only, no external APIs), use:
 ```bash
