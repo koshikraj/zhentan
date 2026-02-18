@@ -44,8 +44,8 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     executedAt: string;
   } | null>(null);
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState(false);
-  const ZERO = "0x0000000000000000000000000000000000000000";
-  const sendableTokens = tokens.filter((t) => t.address && t.address.toLowerCase() !== ZERO);
+  // Include ERC20 and native token (BNB); native has zero address in portfolio
+  const sendableTokens = tokens.filter((t) => t.address != null);
   const [selectedToken, setSelectedToken] = useState<TokenPosition | null>(() => sendableTokens[0] ?? null);
 
   useEffect(() => {

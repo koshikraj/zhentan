@@ -5,6 +5,18 @@ import { dirname, join } from "path";
 import type { QueueFile } from "../types.js";
 import { analyzeRisk, loadPatterns } from "../risk.js";
 import { notifyTelegram } from "../notify.js";
+import { readState } from "./status.js";
+
+function getTelegramChatId(safeAddress?: string): string | undefined {
+  const statePath = process.env.STATE_PATH;
+  if (!statePath || !safeAddress) return undefined;
+  try {
+    const state = readState(statePath);
+    return state.users[safeAddress.toLowerCase()]?.telegramChatId;
+  } catch {
+    return undefined;
+  }
+}
 
 export function createQueueRouter(getQueuePath: () => string | undefined) {
   const router = Router();
@@ -72,6 +84,7 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
       }
 
       const shortTo = `${pendingTx.to.slice(0, 6)}...${pendingTx.to.slice(-4)}`;
+      const chatId = getTelegramChatId(pendingTx.safeAddress);
 
       if (risk.verdict === "APPROVE") {
         // Auto-execute: call local /execute endpoint
@@ -105,7 +118,10 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
               `✅ Auto-approved and executed ${pendingTx.id}:\n` +
                 `${pendingTx.amount} ${pendingTx.token || "USDC"} → ${shortTo}\n` +
                 `Risk: ${risk.riskScore}/100 — ${risk.reasons.join(", ")}\n` +
-                `Explore: https://bscscan.com/tx/${execResult.txHash}`
+                `Explore: https://bscscan.com/tx/${execResult.txHash}`,
+              undefined,
+              undefined,
+              chatId
             );
 
             res.json({
@@ -125,7 +141,10 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
               `${pendingTx.amount} ${pendingTx.token || "USDC"} → ${shortTo}\n` +
               `Risk: ${risk.riskScore}/100 — ${risk.reasons.join(", ")}\n` +
               `Error: ${execResult.error || "unknown"}\n` +
-              `Reply \`approve ${pendingTx.id}\` to retry.`
+              `Reply \`approve ${pendingTx.id}\` to retry.`,
+            undefined,
+            undefined,
+            chatId
           );
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Unknown error";
@@ -135,7 +154,10 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
               `${pendingTx.amount} ${pendingTx.token || "USDC"} → ${shortTo}\n` +
               `Risk: ${risk.riskScore}/100 — ${risk.reasons.join(", ")}\n` +
               `Error: ${msg}\n` +
-              `Reply \`approve ${pendingTx.id}\` to retry.`
+              `Reply \`approve ${pendingTx.id}\` to retry.`,
+            undefined,
+            undefined,
+            chatId
           );
         }
 
@@ -156,6 +178,9 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
           { text: "✅ Approve", callback_data: `approve ${pendingTx.id}` },
           { text: "❌ Reject", callback_data: `reject ${pendingTx.id}` },
         ],
+        [
+          { text: "🔎 Deep Analyze", callback_data: `deep-analyze ${pendingTx.id}` },
+        ],
       ];
 
       if (risk.verdict === "REVIEW") {
@@ -165,7 +190,8 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
             `Risk: ${risk.riskScore}/100\n` +
             `Reasons: ${risk.reasons.join(", ")}`,
           reviewButtons,
-          pendingTx.id
+          pendingTx.id,
+          chatId
         );
       } else {
         notifyTelegram(
@@ -174,7 +200,8 @@ export function createQueueRouter(getQueuePath: () => string | undefined) {
             `Risk: ${risk.riskScore}/100\n` +
             `Reasons: ${risk.reasons.join(", ")}`,
           reviewButtons,
-          pendingTx.id
+          pendingTx.id,
+          chatId
         );
       }
 

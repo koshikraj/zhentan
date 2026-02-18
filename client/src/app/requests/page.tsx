@@ -45,8 +45,11 @@ function RequestsPageContent() {
   }, []);
 
   const fetchStatus = useCallback(async () => {
+    if (!safeAddress) return;
     try {
-      const res = await fetch(getBackendApiUrl("status"));
+      const res = await fetch(
+        `${getBackendApiUrl("status")}?safe=${encodeURIComponent(safeAddress)}`
+      );
       if (res.ok) {
         const data: StatusResponse = await res.json();
         setScreeningMode(data.screeningMode);
@@ -54,7 +57,7 @@ function RequestsPageContent() {
     } catch {
       // silent
     }
-  }, []);
+  }, [safeAddress]);
 
   useEffect(() => {
     fetchInvoices();

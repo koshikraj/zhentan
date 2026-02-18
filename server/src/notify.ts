@@ -1,6 +1,7 @@
-import { execFile } from "child_process";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "593960240";
 
-const TELEGRAM_TARGET = "593960240";
+const TG_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 interface InlineButton {
   text: string;
@@ -8,83 +9,79 @@ interface InlineButton {
 }
 
 // In-memory map of txId → Telegram messageId for editing notifications later
-const notificationMessages = new Map<string, string>();
+const notificationMessages = new Map<string, number>();
 
 export function getNotificationMessageId(txId: string): string | undefined {
-  return notificationMessages.get(txId);
+  const id = notificationMessages.get(txId);
+  return id != null ? String(id) : undefined;
 }
 
 export function notifyTelegram(
   message: string,
   buttons?: InlineButton[][],
-  txId?: string
+  txId?: string,
+  chatId?: string
 ): void {
-  const args = [
-    "message",
-    "send",
-    "--channel",
-    "telegram",
-    "--target",
-    TELEGRAM_TARGET,
-    "-m",
-    message,
-  ];
+  const body: Record<string, unknown> = {
+    chat_id: chatId || TELEGRAM_CHAT_ID,
+    text: message,
+    parse_mode: "Markdown",
+  };
 
   if (buttons) {
-    args.push("--buttons", JSON.stringify(buttons));
+    body.reply_markup = { inline_keyboard: buttons };
   }
 
-  // Use --json to capture messageId when we need to track it
-  if (txId) {
-    args.push("--json");
-  }
-
-  execFile("openclaw", args, (err, stdout) => {
-    if (err) {
-      console.error("Telegram notification failed:", err.message);
-      return;
-    }
-    if (txId && stdout) {
-      try {
-        const result = JSON.parse(stdout);
-        const messageId = result?.payload?.messageId;
+  fetch(`${TG_API}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Telegram sendMessage failed:", res.status, text);
+        return;
+      }
+      if (txId) {
+        const data = await res.json();
+        const messageId = data?.result?.message_id;
         if (messageId) {
           notificationMessages.set(txId, messageId);
         }
-      } catch {
-        // ignore parse errors
       }
-    }
-  });
+    })
+    .catch((err) => {
+      console.error("Telegram notification error:", err);
+    });
 }
 
-export function editNotification(txId: string, newMessage: string): void {
+export function editNotification(txId: string, newMessage: string, chatId?: string): void {
   const messageId = notificationMessages.get(txId);
-  if (!messageId) {
+  if (messageId == null) {
     console.warn(`No notification message found for ${txId}`);
     return;
   }
 
-  execFile(
-    "openclaw",
-    [
-      "message",
-      "edit",
-      "--channel",
-      "telegram",
-      "--target",
-      TELEGRAM_TARGET,
-      "--message-id",
-      messageId,
-      "-m",
-      newMessage,
-    ],
-    (err) => {
-      if (err) {
-        console.error("Telegram edit failed:", err.message);
-      } else {
-        notificationMessages.delete(txId);
+  fetch(`${TG_API}/editMessageText`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId || TELEGRAM_CHAT_ID,
+      message_id: messageId,
+      text: newMessage,
+      parse_mode: "Markdown",
+    }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Telegram editMessageText failed:", res.status, text);
+        return;
       }
-    }
-  );
+      notificationMessages.delete(txId);
+    })
+    .catch((err) => {
+      console.error("Telegram edit error:", err);
+    });
 }

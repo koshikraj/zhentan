@@ -39,11 +39,12 @@ function ProfilePageContent() {
   const safeAddress = computedSafeAddress || "";
 
   useEffect(() => {
-    fetch(getBackendApiUrl("status"))
+    if (!safeAddress) return;
+    fetch(`${getBackendApiUrl("status")}?safe=${encodeURIComponent(safeAddress)}`)
       .then((res) => res.json())
       .then((data) => setScreeningMode(data.screeningMode ?? true))
       .catch(() => {});
-  }, []);
+  }, [safeAddress]);
 
   const copyAddress = async () => {
     await navigator.clipboard.writeText(safeAddress);

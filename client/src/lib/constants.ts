@@ -31,6 +31,10 @@ export const ERC20_BALANCE_OF_ABI = [
   },
 ] as const;
 
+/** Zero address used for native token (BNB) in portfolio and propose. */
+export const NATIVE_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const NATIVE_DECIMALS = 18;
+
 export const BSC_RPC = "https://1rpc.io/bnb";
 export const BSC_EXPLORER_URL = "https://bscscan.com";
 
