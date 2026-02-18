@@ -161,6 +161,23 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
               {truncateAddress(tx.to)}
             </dd>
           </div>
+          {tx.dappMetadata && (
+            <div className="flex justify-between gap-2 sm:gap-4 items-center">
+              <dt className="text-slate-500 shrink-0">DApp</dt>
+              <dd className="flex items-center gap-2 min-w-0 max-w-[50%] sm:max-w-[200px]">
+                {tx.dappMetadata.icons?.[0] ? (
+                  <img
+                    src={tx.dappMetadata.icons[0]}
+                    alt=""
+                    className="w-5 h-5 rounded-md flex-shrink-0 bg-white/10"
+                  />
+                ) : null}
+                <span className="text-slate-300 truncate" title={tx.dappMetadata.url}>
+                  {tx.dappMetadata.name}
+                </span>
+              </dd>
+            </div>
+          )}
           <div className="flex justify-between gap-2 sm:gap-4">
             <dt className="text-slate-500 shrink-0">Proposed</dt>
             <dd className="text-slate-300 truncate min-w-0">{formatDate(tx.proposedAt)}</dd>
