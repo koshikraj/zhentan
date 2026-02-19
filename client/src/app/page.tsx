@@ -613,7 +613,7 @@ export default function LandingPage() {
           transition={{ delay: 0.5, type: "spring", bounce: 0.18 }}
           className="mt-4 text-slate-400 text-base sm:text-lg max-w-xl"
         >
-          An AI agent that learns how you transact onchain - auto-approving secure
+          Your personalized onchain detective - an AI agent that learns how you transact onchain - auto-approving secure
           flows, routing borderline ones for review, and blocking threats in real
           time. 
         </motion.p>

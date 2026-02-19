@@ -77,14 +77,35 @@ export function ActivityList({ transactions, loading, embedded }: ActivityListPr
           ))}
         </div>
       ) : transactions.length === 0 ? (
-        <motion.p
-          className="text-sm text-slate-500 text-center py-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
+        <motion.div
+          className="flex flex-col items-center justify-center text-center py-12"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.35 }}
         >
-          No transactions yet
-        </motion.p>
+          <motion.div
+            className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw"
+            animate={{
+              y: [0, -4, 0],
+              boxShadow: [
+                "0 0 0 rgba(240,185,11,0)",
+                "0 0 18px rgba(240,185,11,0.2)",
+                "0 0 0 rgba(240,185,11,0)",
+              ],
+            }}
+            transition={{
+              duration: 2.2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <Activity className="h-5 w-5" />
+          </motion.div>
+          <p className="text-sm font-medium text-slate-300">No activity yet</p>
+          <p className="mt-1 text-xs text-slate-500 uppercase tracking-widest">
+            Transfers will appear here
+          </p>
+        </motion.div>
       ) : (
         <motion.div
           className="space-y-1"

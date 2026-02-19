@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
-import { Card } from "./ui/Card";
 import { Copy, Check, ArrowDownLeft } from "lucide-react";
-import { UsdcIcon } from "./icons/UsdcIcon";
 
 interface ReceivePanelProps {
   safeAddress: string;
@@ -20,32 +19,38 @@ export function ReceivePanel({ safeAddress }: ReceivePanelProps) {
   };
 
   return (
-    <Card>
-      <div className="flex items-center gap-2 mb-4">
-        <ArrowDownLeft className="h-5 w-5 text-claw" />
-        <UsdcIcon size={20} />
-        <h2 className="text-sm font-semibold text-white tracking-wide">
-          <span className="text-claw">›</span> Receive USDC
+    <div className="flex flex-col items-center text-center gap-5 pb-1">
+      <div className="w-12 h-12 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+        <ArrowDownLeft className="h-5 w-5" />
+      </div>
+      <div className="space-y-1">
+        <h2 className="text-base font-semibold text-white tracking-wide inline-flex items-center gap-2">
+          <Image src="/bsc-yellow.png" alt="" width={18} height={18} className="object-contain" />
+          Receive on BNB Chain
         </h2>
+        <p className="text-xs text-slate-500 uppercase tracking-widest">Deposit any assets on BNB Chain</p>
       </div>
 
-      <div className="flex flex-col items-center gap-4">
-        <div className="p-4 sm:p-5 bg-white rounded-2xl shadow-[0_8px_32px_-8px_rgba(0,0,0,0.2)] inline-flex">
-          <QRCodeSVG value={safeAddress} size={140} />
-        </div>
+      <div className="p-4 sm:p-5 bg-white rounded-2xl shadow-[0_8px_32px_-8px_rgba(0,0,0,0.2)] inline-flex">
+        <QRCodeSVG value={safeAddress} size={148} />
+      </div>
 
-        <button
-          onClick={copyAddress}
-          className="flex items-center gap-2 text-xs sm:text-sm text-slate-400 hover:text-claw transition-colors font-mono break-all text-center min-h-[2.75rem] touch-manipulation px-2"
-        >
-          {safeAddress}
+      <button
+        type="button"
+        onClick={copyAddress}
+        className="w-full rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] transition-colors px-3 py-3 text-left min-h-[2.75rem] touch-manipulation"
+      >
+        <span className="flex items-center justify-between gap-2">
+          <span className="font-mono text-xs sm:text-sm text-slate-300 break-all">
+            {safeAddress}
+          </span>
           {copied ? (
             <Check className="h-4 w-4 text-claw flex-shrink-0" />
           ) : (
-            <Copy className="h-4 w-4 flex-shrink-0" />
+            <Copy className="h-4 w-4 text-slate-400 flex-shrink-0" />
           )}
-        </button>
-      </div>
-    </Card>
+        </span>
+      </button>
+    </div>
   );
 }
