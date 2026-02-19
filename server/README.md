@@ -1,6 +1,6 @@
 # Zhentan Server
 
-Express backend that handles queue and invoice file I/O. Use this when deploying the Next.js client to Vercel (or any read-only filesystem): run this server on a host with a writable filesystem and point the client at it for transactions, queue, execute, and invoices.
+Express backend that handles queue and invoice file I/O. Run this server on a host with a writable filesystem and point the client at it for transactions, queue, execute, and invoices and invoking OpenClaw agent after primary screening by this server
 
 ## Setup
 
@@ -10,7 +10,8 @@ Express backend that handles queue and invoice file I/O. Use this when deploying
    cd server
    npm install
    cp .env.example .env
-   # Edit .env: QUEUE_PATH, INVOICE_QUEUE_PATH, AGENT_PRIVATE_KEY, PIMLICO_API_KEY
+   # Edit .env: QUEUE_PATH, INVOICE_QUEUE_PATH, STATE_PATH, PATTERNS_PATH,
+   #            AGENT_PRIVATE_KEY, PIMLICO_API_KEY, ZERION_API_KEY, PORT
    ```
 
 2. Ensure queue files exist and are writable, e.g.:
@@ -29,4 +30,3 @@ Express backend that handles queue and invoice file I/O. Use this when deploying
    npm run build && npm start
    ```
 
-If `BACKEND_URL` is unset, the client can keep using the existing Next.js API routes (e.g. for local dev with a local queue file).

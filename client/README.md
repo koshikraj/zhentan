@@ -23,6 +23,9 @@ Next.js frontend for the Zhentan wallet: dashboard, send/receive USDC, activity,
    ```bash
    cd client
    npm install
+   # or Prefer yarn if you face dependency issues in packages
+   yarn install
+
    ```
 
 2. **Configure environment**
@@ -33,15 +36,21 @@ Next.js frontend for the Zhentan wallet: dashboard, send/receive USDC, activity,
 
    Edit `.env.local` and set at least:
 
-   - **Propose flow:** `NEXT_PUBLIC_PIMLICO_API_KEY`, `NEXT_PUBLIC_AGENT_ADDRESS`, `NEXT_PUBLIC_PRIVY_APP_ID`
-   - **Server-side (if using built-in API routes):** `PIMLICO_API_KEY`, `USDC_CONTRACT_ADDRESS`, `QUEUE_PATH` (and optionally `STATE_PATH`, `PATTERNS_PATH`)
+   - `NEXT_PUBLIC_PIMLICO_API_KEY` (Pimlico bundler/paymaster API key)
+   - `NEXT_PUBLIC_AGENT_ADDRESS` (OpenClaw agent wallet address)
+   - `NEXT_PUBLIC_BACKEND_URL` (local: `http://localhost:3001` or your deployed API URL)
+   - `NEXT_PUBLIC_PRIVY_APP_ID` (Privy app ID)
+   - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (WalletConnect project ID, for mobile app support)
 ## Run
 
 **Development**
 
 ```bash
-npm run dev
+npm run dev 
+# or Prefer yarn if you face dependency issues in packages
+yarn dev
 ```
+
 
 App runs at [http://localhost:3000](http://localhost:3000). Restart the dev server after changing `.env.local`.
 
@@ -50,10 +59,15 @@ App runs at [http://localhost:3000](http://localhost:3000). Restart the dev serv
 ```bash
 npm run build
 npm start
+# or
+yarn build
+yarn start
 ```
 
 **Lint**
 
 ```bash
 npm run lint
+# or
+yarn lint
 ```
