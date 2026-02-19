@@ -25,29 +25,7 @@ mkdir -p ~/.openclaw/workspace/skills
 ln -sf "$(pwd)/zhentan-skills" ~/.openclaw/workspace/skills/zhentan
 ```
 
-### 2. Register the cron job
-
-```bash
-openclaw cron add --name "zhentan-monitor" --every "10s" --session isolated --message "You are Zhentan, a treasury monitor. Follow SKILL.md in skills/zhentan/.
-
-  1. Run: node skills/zhentan/check-pending.js
-     - If screening OFF or no pending txs, stop here and say nothing.
-
-  2. For each pending tx, run: node skills/zhentan/analyze-risk.js <tx-id>
-
-  3. Based on verdict:
-     - APPROVE: run node skills/zhentan/sign-and-execute.js <tx-id>, then node skills/zhentan/record-pattern.js <tx-id>. Report: approved, amount, recipient, tx hash.
-     - REVIEW: run node skills/zhentan/mark-review.js <tx-id> <risk reasons>. Report: tx details, risk score, reasons. End with: Reply approve <tx-id> or reject <tx-id>
-     - BLOCK: run node skills/zhentan/mark-review.js <tx-id> <risk reasons>. Report urgently: tx details, risk score, reasons. End with: Reply approve <tx-id> to override, or reject <tx-id>
-
-  Be concise. Output only the action taken and key details." \
-    --deliver \
-    --channel telegram
-```
-
-This runs every 10 seconds in an isolated session and delivers alerts to Telegram.
-
-### 3. Restart OpenClaw
+### 2. Restart OpenClaw
 
 ```bash
 openclaw gateway restart
@@ -59,8 +37,7 @@ Confirm that the zhentan skill is detected.
 openclaw skills check
 ```
 
-
-OpenClaw will load the skill from `SKILL.md` and the cron will begin monitoring.
+OpenClaw will load the skill from `SKILL.md` and begin responding to commands via Telegram.
 
 ---
 
@@ -86,4 +63,4 @@ ln -sf "$(pwd)/zhentan-skills" .openclaw/skills/zhentan
 
 
 
-For full usage details, cron flow, and owner commands, see **[SKILL.md](./SKILL.md)**.
+For full usage details and owner commands, see **[SKILL.md](./SKILL.md)**.

@@ -2,6 +2,15 @@
 
 Personalized transaction guard and payment assistant that learns your onchain behavior.
 
+## Documentation
+
+| Document | Contents |
+|----------|----------|
+| [docs/PROJECT.md](docs/PROJECT.md) | Problem, solution, business impact, limitations & roadmap |
+| [docs/TECHNICAL.md](docs/TECHNICAL.md) | Architecture, setup instructions, demo guide |
+| [docs/EXTRAS.md](docs/EXTRAS.md) | Demo video, live demo links |
+| [bsc.address](bsc.address) | Contract addresses and network info |
+
 ## Project structure
 
 | Directory | What it does |
