@@ -315,7 +315,7 @@ function SettingsPageContent() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <h4 className="text-xs font-medium text-white">
-                                Telegram Notifications
+                                Telegram Channel
                               </h4>
                               {telegramLinked ? (
                                 <button
