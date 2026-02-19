@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Zhentan",
-  description: "AI-secured crypto wallet",
+  description: "Your personalized onchain detective",
   icons: {
     icon: "/favicon.png",
   },

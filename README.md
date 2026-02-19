@@ -1,6 +1,6 @@
 # 🦞 Zhentan
 
-Personalized transaction guard and payment assistant that learns your onchain behavior.
+Your personalized onchain detective and assistant that learns and guards your onchain behavior.
 
 ## Documentation
 
@@ -9,6 +9,7 @@ Personalized transaction guard and payment assistant that learns your onchain be
 | [docs/PROJECT.md](docs/PROJECT.md) | Problem, solution, business impact, limitations & roadmap |
 | [docs/TECHNICAL.md](docs/TECHNICAL.md) | Architecture, setup instructions, demo guide |
 | [docs/ONCHAIN.md](docs/ONCHAIN.md) | Live smart accounts and transactions on BNB Chain |
+| [docs/AI_BUILD_LOG.md](docs/AI_BUILD_LOG.md) | How AI tools were used to build Zhentan |
 | [docs/EXTRAS.md](docs/EXTRAS.md) | Demo video, live demo links |
 | [bsc.address](bsc.address) | Contract addresses and network info |
 
@@ -22,7 +23,7 @@ Personalized transaction guard and payment assistant that learns your onchain be
 
 ## Description
 
-Zhentan is a personalized wallet assistant built with an OpenClaw agent that learns how you transact onchain. It understands patterns—amounts, timing, recipients, assets—and rates transaction risk in real time.
+Zhentan is a personalized wallet assistant and onchain detective built with an OpenClaw agent that learns how you transact onchain. It understands patterns—amounts, timing, recipients, assets—and rates transaction risk in real time.
 
 - **Screening ON:** The server runs instant pattern-based risk analysis on every queued transaction. Safe txs (score < 40) are auto-executed immediately. Suspicious txs are blocked, and borderline txs are sent for interactive review via Telegram with approve/reject buttons.
 - **WalletConnect:** Connect any DApp (PancakeSwap, Venus, etc.) via WalletConnect. DApp transaction requests flow through the same screening pipeline before execution.

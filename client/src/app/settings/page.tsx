@@ -383,12 +383,12 @@ function SettingsPageContent() {
                                 <>
                                   Message{" "}
                                   <a
-                                    href="https://t.me/kos_claw_bot"
+                                    href="https://t.me/zhentan_clawbot"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-400/80 hover:text-blue-400 transition-colors"
                                   >
-                                    @kos_claw_bot
+                                    @zhentan_clawbot
                                   </a>{" "}
                                   first, then link here.
                                 </>

@@ -1,5 +1,7 @@
 # Project: Zhentan
 
+> Live onchain activity (smart accounts + transactions on BNB Chain): [docs/ONCHAIN.md](./ONCHAIN.md)
+
 ## 1. Problem
 
 DeFi wallets offer no protection between "sign" and "execute." Once a user clicks approve, the transaction goes through — even if it's a scam, a fat-finger, or a social engineering attack. Users bear the full cognitive burden of verifying every transaction in real time, with no safety net.
