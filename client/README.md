@@ -2,6 +2,15 @@
 
 Next.js frontend for the Zhentan wallet: dashboard, send/receive USDC, activity, invoice requests, settings.
 
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page — project overview, architecture diagram, features |
+| `/deck` | Interactive slide deck — 8 slides, keyboard navigable (← →) |
+| `/login` | Sign in with Google via Privy |
+| `/app` | Main wallet dashboard |
+
 ## Prerequisites
 
 - Node.js 18+

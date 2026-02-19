@@ -1,6 +1,7 @@
 # Technical Documentation
 
 > One place for **how** the system works and how to run and use it.
+> Live onchain activity: [docs/ONCHAIN.md](./ONCHAIN.md)
 
 ## Architecture
 

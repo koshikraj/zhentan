@@ -8,6 +8,7 @@ Personalized transaction guard and payment assistant that learns your onchain be
 |----------|----------|
 | [docs/PROJECT.md](docs/PROJECT.md) | Problem, solution, business impact, limitations & roadmap |
 | [docs/TECHNICAL.md](docs/TECHNICAL.md) | Architecture, setup instructions, demo guide |
+| [docs/ONCHAIN.md](docs/ONCHAIN.md) | Live smart accounts and transactions on BNB Chain |
 | [docs/EXTRAS.md](docs/EXTRAS.md) | Demo video, live demo links |
 | [bsc.address](bsc.address) | Contract addresses and network info |
 
