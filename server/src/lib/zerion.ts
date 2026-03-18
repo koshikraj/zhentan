@@ -1,4 +1,5 @@
 import { formatUnits, zeroAddress } from "viem";
+import { getTokenFallback } from "./token-fallbacks.js";
 
 const ZERION_API_KEY = process.env.ZERION_API_KEY;
 const BASE_URL = "https://api.zerion.io/v1";
@@ -102,18 +103,21 @@ export async function fetchTokenPositions(
         };
         const quantity = attrs.quantity as { int: string; decimals: number };
         const impl = fungibleInfo?.implementations?.find((i) => i.chain_id === chainIdStr);
+        const tokenAddress = impl?.address ?? zeroAddress;
+        const needsFallback = !fungibleInfo?.name || !fungibleInfo?.symbol || !fungibleInfo?.icon?.url;
+        const fallback = needsFallback ? getTokenFallback(tokenAddress) : undefined;
 
         tokens.push({
           id: pos.id ?? "",
           tokenId: rel?.fungible?.data?.id,
-          name: fungibleInfo?.name ?? "Unknown",
-          symbol: fungibleInfo?.symbol ?? "?",
+          name: fungibleInfo?.name || fallback?.name || "Unknown",
+          symbol: fungibleInfo?.symbol || fallback?.symbol || "?",
           decimals: quantity?.decimals ?? impl?.decimals ?? 18,
-          iconUrl: fungibleInfo?.icon?.url,
+          iconUrl: fungibleInfo?.icon?.url || fallback?.iconUrl,
           usdValue: (attrs.value as number) ?? null,
           balance: formatUnits(BigInt(quantity?.int ?? "0"), quantity?.decimals ?? 18),
           price: (attrs.price as number) ?? 0,
-          address: impl?.address ?? zeroAddress,
+          address: tokenAddress,
           chain: { id: chainIdStr, chainId, name: "BNB Chain" },
           verified: fungibleInfo?.flags?.verified ?? false,
         });
