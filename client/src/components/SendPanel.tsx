@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "./ui/Button";
 import { proposeTransaction } from "@/lib/propose";
 import { useAuth } from "@/app/context/AuthContext";
 import { UsdcIcon } from "./icons/UsdcIcon";
 import { ThemeLoaderSpinner } from "./ThemeLoader";
-import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock, Coins } from "lucide-react";
+import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock, Coins, MessageCircle } from "lucide-react";
 import { truncateAddress, formatDate, statusLabel, formatTokenAmount } from "@/lib/format";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 import { getBackendApiUrl } from "@/lib/api";
@@ -26,7 +27,9 @@ interface SendPanelProps {
 }
 
 export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, screeningMode = true }: SendPanelProps) {
-  const { user, wallet, getOwnerAccount } = useAuth();
+  const { user, wallet, getOwnerAccount, telegramUserId } = useAuth();
+  const router = useRouter();
+  const [showTgRequiredModal, setShowTgRequiredModal] = useState(false);
   const [recipient, setRecipient] = useState("");
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
@@ -120,6 +123,11 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
 
     if (!user || !wallet) {
       setError("Please log in first");
+      return;
+    }
+
+    if (screeningMode && !telegramUserId) {
+      setShowTgRequiredModal(true);
       return;
     }
 
@@ -406,6 +414,53 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   }
 
   return (
+    <>
+    <Dialog
+      open={showTgRequiredModal}
+      onClose={() => setShowTgRequiredModal(false)}
+      title="Telegram Required"
+      sheetOnMobile
+    >
+      <div className="flex flex-col items-center gap-5 py-2">
+        <div className="w-16 h-16 rounded-2xl bg-blue-400/10 flex items-center justify-center">
+          <MessageCircle className="h-8 w-8 text-blue-400" />
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-sm text-slate-300 leading-relaxed">
+            AI screening is active. Telegram must be connected so the agent can notify you when a transaction needs review.
+          </p>
+          <p className="text-xs text-slate-500">
+            Message{" "}
+            <a
+              href="https://t.me/zhentan_clawbot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400/80 hover:text-blue-400 transition-colors"
+            >
+              @zhentan_clawbot
+            </a>{" "}
+            first, then link your account in Settings.
+          </p>
+        </div>
+        <Button
+          type="button"
+          className="w-full py-3.5"
+          onClick={() => {
+            setShowTgRequiredModal(false);
+            router.push("/settings");
+          }}
+        >
+          Go to Settings
+        </Button>
+        <button
+          type="button"
+          onClick={() => setShowTgRequiredModal(false)}
+          className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </Dialog>
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {/* You're sending - big amount */}
       <div>
@@ -538,5 +593,6 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         {submitLabel}
       </Button>
     </form>
+    </>
   );
 }

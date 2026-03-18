@@ -5,6 +5,11 @@
       "lastCheck": null,
       "decisions": [],
       "telegramChatId": "593960240"
+    },
+    "0xeb35a6f9abc12e33c80d5b1667875cd4e7e79b59": {
+      "screeningMode": true,
+      "lastCheck": null,
+      "decisions": []
     }
   }
 }

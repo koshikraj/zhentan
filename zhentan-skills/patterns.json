@@ -2,9 +2,9 @@
   "recipients": {
     "0x67d29520c6f9579fe4b32dcba346620846ef98d2": {
       "label": "contractor-alice",
-      "totalTxCount": 78,
-      "totalVolume": "21556.44",
-      "avgAmount": "276.36",
+      "totalTxCount": 80,
+      "totalVolume": "21577.44",
+      "avgAmount": "269.72",
       "maxAmount": "4800.00",
       "typicalHours": [
         9,
@@ -23,7 +23,7 @@
         8
       ],
       "category": "payroll",
-      "lastSeen": "2026-02-16T14:11:21.813Z"
+      "lastSeen": "2026-03-18T12:56:37.449Z"
     },
     "0x958543756a4c7ac6fb361f0efbfecd98e4d297db": {
       "label": null,
@@ -70,6 +70,10 @@
     "2026-02-16": {
       "txCount": 12,
       "totalVolume": "0.14"
+    },
+    "2026-03-18": {
+      "txCount": 2,
+      "totalVolume": "21.00"
     }
   },
   "globalLimits": {
