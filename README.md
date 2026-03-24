@@ -1,3 +1,11 @@
+## 🚨 This repository has moved!
+
+**This project is no longer maintained here. Please visit the new repository:**
+
+### ➡️ https://github.com/zhentanme/zhentan
+
+---
+
 # 🦞 Zhentan
 
 Your personalized onchain detective and assistant that learns and guards your onchain behavior.
